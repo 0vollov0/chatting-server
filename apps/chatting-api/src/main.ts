@@ -3,6 +3,6 @@ import { ChattingApiModule } from './chatting-api.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ChattingApiModule);
-  await app.listen(3000);
+  await app.listen(process.env.CHATTING_HTTP_PORT);
 }
 bootstrap();

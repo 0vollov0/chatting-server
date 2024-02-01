@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/chatting/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/chatting/tsconfig.app.json"
+  },
+  "generateOptions": {
+    "spec": false
+  },
+  "monorepo": true,
+  "root": "apps/chatting",
+  "projects": {
+    "chatting": {
+      "type": "application",
+      "root": "apps/chatting",
+      "entryFile": "main",
+      "sourceRoot": "apps/chatting/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/chatting/tsconfig.app.json"
+      }
+    },
+    "common": {
+      "type": "application",
+      "root": "apps/common",
+      "entryFile": "main",
+      "sourceRoot": "apps/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/common/tsconfig.app.json"
+      }
+    },
+    "worker": {
+      "type": "application",
+      "root": "apps/worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/worker/tsconfig.app.json"
+      }
+    },
+    "chatting-api": {
+      "type": "application",
+      "root": "apps/chatting-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/chatting-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/chatting-api/tsconfig.app.json"
+      }
+    }
+  }
+}

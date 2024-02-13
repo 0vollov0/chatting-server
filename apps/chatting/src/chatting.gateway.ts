@@ -1,4 +1,4 @@
-import { UseFilters } from '@nestjs/common';
+import { UseFilters, UseInterceptors } from '@nestjs/common';
 import {
   MessageBody,
   OnGatewayConnection,
@@ -15,6 +15,7 @@ import { Server, Socket } from 'socket.io';
 import { ChattingService } from './chatting.service';
 import { SendChatWithFileDto } from './dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from './dto/send-chat-with-image.dto';
+import { SendChatInterceptor } from './interceptors/send-chat.interceptor';
 
 @WebSocketGateway(+process.env.SOCKET_PORT || 8081, {
   cors: {
@@ -59,6 +60,7 @@ export class ChattingGateway
   @WebSocketServer()
   server: Server;
 
+  @UseInterceptors(SendChatInterceptor)
   @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('chat')
   handleChat(

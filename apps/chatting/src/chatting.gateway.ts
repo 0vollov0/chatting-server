@@ -4,6 +4,7 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -23,12 +24,15 @@ import { ChattingService } from './chatting.service';
   maxHttpBufferSize: 10 * 1024 * 1024, // 10MB
 })
 export class ChattingGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
   private clients: Map<string, Socket>;
 
   constructor(private readonly chattingService: ChattingService) {
     this.clients = new Map<string, Socket>();
+  }
+  afterInit(server: Server) {
+    this.chattingService.server = server;
   }
 
   handleConnection(client: Socket) {

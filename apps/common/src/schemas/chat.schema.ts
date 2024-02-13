@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, Length, Matches } from 'class-validator';
+import { IsEnum } from 'class-validator';
 
 export enum ChatType {
   message,
@@ -16,6 +16,7 @@ export enum ChatType {
 })
 export class Chat {
   @ApiProperty({ type: ChatType })
+  @IsEnum(ChatType)
   @Prop({ type: Number, enum: ChatType, required: true })
   type: ChatType;
 
@@ -24,8 +25,6 @@ export class Chat {
   name: string;
 
   @ApiProperty({ type: String, maxLength: 512, required: false })
-  @IsOptional()
-  @Length(0, 512)
   @Prop({ type: String, maxlength: 512, required: false })
   message?: string | undefined;
 
@@ -34,9 +33,6 @@ export class Chat {
   createdAt: Date;
 
   @ApiProperty({ type: String, maxLength: 512, required: false })
-  @IsOptional()
-  @Matches(/\.[A-Za-z0-9]+$/)
-  @Length(4, 100)
   @Prop({ type: String, maxlength: 512, required: false })
   originalname?: string | undefined;
 

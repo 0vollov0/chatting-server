@@ -37,7 +37,18 @@ export class ChattingGateway
   }
 
   handleConnection(client: Socket) {
-    this.clients.set(client.id, client);
+    try {
+      if (
+        typeof client.handshake.auth.name === 'string' &&
+        client.handshake.auth.name.length > 1
+      ) {
+        this.clients.set(client.id, client);
+      } else {
+        client.disconnect(true);
+      }
+    } catch (error) {
+      client.disconnect(true);
+    }
   }
 
   handleDisconnect(client: Socket) {

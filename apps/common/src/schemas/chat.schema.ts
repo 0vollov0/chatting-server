@@ -1,6 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
+import { Types } from 'mongoose';
+
+export type UploadedChatFile = {
+  originalname: string;
+  filename: string;
+  size: string;
+  expireAt: string;
+};
 
 export enum ChatType {
   message,
@@ -15,6 +23,9 @@ export enum ChatType {
   versionKey: false,
 })
 export class Chat {
+  @ApiProperty({ type: String })
+  _id: Types.ObjectId;
+
   @ApiProperty({ type: ChatType })
   @IsEnum(ChatType)
   @Prop({ type: Number, enum: ChatType, required: true })
@@ -38,7 +49,11 @@ export class Chat {
 
   @ApiProperty({ type: String, maxLength: 512, required: false })
   @Prop({ type: String, maxlength: 512, required: false })
-  url?: string | undefined;
+  filename?: string | undefined;
+
+  /* @ApiProperty({ type: String, maxLength: 512, required: false })
+  @Prop({ type: String, maxlength: 512, required: false })
+  url?: string | undefined; */
 
   @ApiProperty({ type: Number, required: false })
   @Prop({ type: Number, isSafeInteger: true, required: false })

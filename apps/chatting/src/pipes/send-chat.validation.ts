@@ -9,7 +9,9 @@ import { SendChatWithImageDto } from '../dto/send-chat-with-image.dto';
 
 @Injectable()
 export class SendChatValidation implements PipeTransform {
-  async transform(input: SendChatDto) {
+  async transform(
+    input: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
+  ) {
     let instance: object;
 
     switch (input.type) {

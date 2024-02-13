@@ -1,6 +1,5 @@
 import { UseFilters } from '@nestjs/common';
 import {
-  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -14,6 +13,8 @@ import { SendChatDto } from './dto/send-chat.dto';
 import { SendChatValidation } from './pipes/send-chat.validation';
 import { Server, Socket } from 'socket.io';
 import { ChattingService } from './chatting.service';
+import { SendChatWithFileDto } from './dto/send-chat-with-file.dto';
+import { SendChatWithImageDto } from './dto/send-chat-with-image.dto';
 
 @WebSocketGateway(+process.env.SOCKET_PORT || 8081, {
   cors: {
@@ -50,9 +51,9 @@ export class ChattingGateway
   @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('chat')
   handleChat(
-    @MessageBody(SendChatValidation) dto: SendChatDto,
-    @ConnectedSocket() client: Socket,
+    @MessageBody(SendChatValidation)
+    dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
   ) {
-    client.emit('chat', dto);
+    this.chattingService.handleChat(dto);
   }
 }

@@ -18,9 +18,11 @@ export class ChattingService {
     return this._server;
   }
 
-  handleChat(dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto) {
+  async handleChat(
+    dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
+  ) {
     const chatFactory = new ChatFactory(dto);
-    const chat = chatFactory.process();
+    const chat = await chatFactory.process();
     // save chat on the db //
   }
 }

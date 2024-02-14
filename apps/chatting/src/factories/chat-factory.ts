@@ -6,6 +6,7 @@ import {
 import { SendChatDto } from '../dto/send-chat.dto';
 import { SendChatWithFileDto } from '../dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from '../dto/send-chat-with-image.dto';
+import * as moment from 'moment';
 
 export interface AbstractChatFactory {
   process(): Omit<Chat, '_id'> | Promise<Omit<Chat, '_id'>>;
@@ -39,7 +40,12 @@ class ChatOnlyMessageFactory implements AbstractChatFactory {
     this.dto = dto;
   }
   process(): Omit<Chat, '_id'> | Promise<Omit<Chat, '_id'>> {
-    throw new Error('Method not implemented.');
+    const chat: Omit<Chat, '_id'> = {
+      type: this.dto.type,
+      name: this.dto.name,
+      createdAt: moment().toDate(),
+    };
+    return chat;
   }
   upload(): UploadedChatFile {
     throw new Error('Method not implemented.');

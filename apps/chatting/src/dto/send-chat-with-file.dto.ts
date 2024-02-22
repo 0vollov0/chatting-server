@@ -14,7 +14,7 @@ export class SendChatWithFileDto extends IntersectionType(
   PartialType(PickType(SendChatDto, ['message'] as const)),
 ) {
   @BufferLength(0, MB(30))
-  buffer: number;
+  buffer: Buffer;
 
   @MaxLength(256)
   @Matches(/\.[A-Za-z0-9]+$/)

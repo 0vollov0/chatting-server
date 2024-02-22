@@ -1,3 +1,3 @@
 export function MB(byte: number) {
-  return byte * (1024 * 1024);
+  return byte * 10 ** 6;
 }

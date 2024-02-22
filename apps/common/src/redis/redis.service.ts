@@ -4,7 +4,7 @@ import { createClient } from 'redis';
 
 @Injectable()
 export class RedisService {
-  private client: ReturnType<typeof createClient>;
+  private _client: ReturnType<typeof createClient>;
   constructor(private readonly configService: ConfigService) {
     const password = this.configService.get<string>('REDIS_PASSWORD');
     const host = this.configService.get<string>('REDIS_HOST');
@@ -15,6 +15,10 @@ export class RedisService {
         console.error(err);
       })
       .connect()
-      .then((client) => (this.client = client));
+      .then((client) => (this._client = client));
+  }
+
+  public get client(): ReturnType<typeof createClient> {
+    return this._client;
   }
 }

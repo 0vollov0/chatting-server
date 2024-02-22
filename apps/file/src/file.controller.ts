@@ -1,12 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
 import { FileService } from './file.service';
+import { CreateFileDto } from './dto/create-file.dto';
+import { UploadInterceptor } from './interceptors/upload.interceptor';
 
 @Controller()
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
-  @Get()
-  getHello(): string {
-    return this.fileService.getHello();
+  @Post('file')
+  @UseInterceptors(UploadInterceptor)
+  createFile(@Body() dto: CreateFileDto) {
+    return this.fileService.createFile(dto);
   }
 }

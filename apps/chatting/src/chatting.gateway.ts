@@ -23,7 +23,7 @@ import { SendChatInterceptor } from './interceptors/send-chat.interceptor';
     methods: ['GET'],
     credentials: true,
   },
-  maxHttpBufferSize: 10 * 1024 * 1024, // 10MB
+  maxHttpBufferSize: 10 * 10 ** 6, // 10MB
 })
 export class ChattingGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit

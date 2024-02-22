@@ -6,8 +6,8 @@ import { Types } from 'mongoose';
 export type UploadedChatFile = {
   originalname: string;
   filename: string;
-  size: string;
-  expireAt: string;
+  size: number;
+  expireAt: Date;
 };
 
 export enum ChatType {

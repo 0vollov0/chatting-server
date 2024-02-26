@@ -4,11 +4,12 @@ import { SendChatWithFileDto } from './dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from './dto/send-chat-with-image.dto';
 import { SendChatDto } from './dto/send-chat.dto';
 import { ChatFactory } from './factories/chat-factory';
+import { RedisService } from 'apps/common/src/redis/redis.service';
 
 @Injectable()
 export class ChattingService {
   private _server: Server;
-  constructor() {}
+  constructor(private readonly redisService: RedisService) {}
 
   public set server(server: Server) {
     this._server = server;
@@ -23,6 +24,9 @@ export class ChattingService {
   ) {
     const chatFactory = new ChatFactory(dto);
     const chat = await chatFactory.process();
-    // save chat on the db //
+    this.redisService.appendChat(dto.roomId, chat).then((value) => {
+      console.log(chat);
+      console.log(value);
+    });
   }
 }

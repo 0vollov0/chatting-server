@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from 'redis';
+import { Chat } from '../schemas/chat.schema';
 
 @Injectable()
 export class RedisService {
@@ -20,5 +21,9 @@ export class RedisService {
 
   public get client(): ReturnType<typeof createClient> {
     return this._client;
+  }
+
+  appendChat(roomId: string, chat: Chat) {
+    return this._client.lPush(roomId, JSON.stringify(chat));
   }
 }

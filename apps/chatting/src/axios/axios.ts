@@ -1,8 +1,10 @@
 import { HttpStatus } from '@nestjs/common';
 import { UploadedChatFile } from 'apps/common/src/schemas/chat.schema';
+import { BufferType } from 'apps/common/src/type';
 import axios from 'axios';
 
 type UploadFileDto = {
+  bufferType: BufferType;
   roomId: string;
   buffer: Buffer;
   originalname: string;
@@ -25,7 +27,7 @@ export class Axios {
   uploadFile(dto: UploadFileDto) {
     return new Promise<UploadedChatFile>((resolve, reject) => {
       axios
-        .post<UploadedChatFile>(`${process.env.FILE_SERVER_HOST}/file`, dto)
+        .post<UploadedChatFile>(`${this.FILE_SERVER_HOST}`, dto)
         .then(({ status, data }) => {
           if (status === HttpStatus.CREATED) {
             resolve(data);
@@ -34,6 +36,4 @@ export class Axios {
         .catch(reject);
     });
   }
-
-  uploadImage() {}
 }

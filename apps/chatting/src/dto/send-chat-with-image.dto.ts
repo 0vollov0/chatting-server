@@ -14,7 +14,7 @@ export class SendChatWithImageDto extends IntersectionType(
   PartialType(PickType(SendChatDto, ['message'] as const)),
 ) {
   @BufferLength(0, MB(5))
-  buffer: number;
+  buffer: Buffer;
 
   @MaxLength(256)
   @Matches(/\.(jpg|jpeg|png|webp)$/)

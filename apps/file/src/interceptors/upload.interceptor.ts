@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { Request } from 'express';
 import { CreateFileDto } from '../dto/create-file.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { BufferType } from 'apps/common/src/type';
 
 type Body = {
   buffer: {
@@ -17,6 +18,7 @@ type Body = {
   };
   originalname: string;
   roomId: string;
+  bufferType: BufferType;
 };
 
 @Injectable()
@@ -30,6 +32,7 @@ export class UploadInterceptor implements NestInterceptor {
         buffer: Buffer.from(body.buffer.data),
         filename: `${uuidv4()}.${body.originalname.split('.')[1]}`,
         roomId: body.roomId,
+        bufferType: body.bufferType,
       } as CreateFileDto;
     } catch (error) {
       throw new BadRequestException(error);

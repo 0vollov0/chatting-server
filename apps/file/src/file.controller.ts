@@ -7,7 +7,7 @@ import { UploadInterceptor } from './interceptors/upload.interceptor';
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
-  @Post('file')
+  @Post()
   @UseInterceptors(UploadInterceptor)
   createFile(@Body() dto: CreateFileDto) {
     return this.fileService.createFile(dto);

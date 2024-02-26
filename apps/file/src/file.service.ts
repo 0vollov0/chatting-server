@@ -9,7 +9,13 @@ import * as moment from 'moment';
 export class FileService {
   constructor() {}
   createFile(dto: CreateFileDto) {
-    const roomPath = join(__dirname, '../../..', 'bucket', 'file', dto.roomId);
+    const roomPath = join(
+      __dirname,
+      '../../..',
+      'bucket',
+      dto.bufferType,
+      dto.roomId,
+    );
     if (!fs.existsSync(roomPath)) {
       fs.mkdirSync(roomPath);
       console.log(`${roomPath} has been created.`);
@@ -22,7 +28,9 @@ export class FileService {
             filename: dto.filename,
             originalname: dto.originalname,
             size: dto.buffer.length,
-            expireAt: moment().add(2, 'weeks').toDate(),
+            expireAt: moment()
+              .add(dto.bufferType === 'file' ? 2 : 1, 'weeks')
+              .toDate(),
           };
           resolve(uploadedChatFile);
         } else reject(new BadRequestException(err));

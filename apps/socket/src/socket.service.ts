@@ -24,7 +24,7 @@ export class SocketService {
   ) {
     const chatFactory = new ChatFactory(dto);
     const chat = await chatFactory.process();
-    this.redisService.appendChat(dto.roomId, chat).then((value) => {
+    this.redisService.appendChat(`room-${dto.roomId}`, chat).then((value) => {
       console.log(chat);
       console.log(value);
     });

@@ -24,6 +24,42 @@ export class RedisService {
   }
 
   appendChat(roomId: string, chat: Chat) {
-    return this._client.lPush(roomId, JSON.stringify(chat));
+    return this._client.rPush(roomId, JSON.stringify(chat));
+  }
+
+  async getChatRoomIds() {
+    return (await this._client.keys('room-*')).map(
+      (keys) => keys.split('room-')[1] || '',
+    );
+  }
+
+  lockChatRoom(id: string) {
+    return this._client.set(`lock-${id}`, 1);
+  }
+  releaseChatRoom(id: string) {
+    return this._client.del(`lock-${id}`);
+  }
+
+  async mergeChatRoom(id: string) {
+    const chats = await this._client.lRange(`temp-${id}`, 0, -1);
+    await this._client.del(`temp-${id}`);
+    return chats.length ? this._client.lPush(`room-${id}`, chats) : 0;
+  }
+
+  removeChatRoom(id: string) {
+    return this._client.del(`room-${id}`);
+  }
+
+  getChats(roomId: string) {
+    return new Promise<Chat[]>((resolve, reject) => {
+      try {
+        this._client.lRange(`room-${roomId}`, 0, -1).then((values) => {
+          const chats: Chat[] = JSON.parse(`[${values.toString()}]`);
+          resolve(chats);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 }

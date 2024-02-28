@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { ChattingApiModule } from './chatting-api.module';
+import { ApiModule } from './api.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ChattingApiModule);
+  const app = await NestFactory.create(ApiModule);
   await app.listen(process.env.CHATTING_HTTP_PORT);
 }
 bootstrap();

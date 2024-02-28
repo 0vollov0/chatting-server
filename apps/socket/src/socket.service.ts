@@ -7,7 +7,7 @@ import { ChatFactory } from './factories/chat-factory';
 import { RedisService } from 'apps/common/src/redis/redis.service';
 
 @Injectable()
-export class ChattingService {
+export class SocketService {
   private _server: Server;
   constructor(private readonly redisService: RedisService) {}
 

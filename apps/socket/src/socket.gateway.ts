@@ -12,7 +12,7 @@ import { SocketExceptionFilter } from './filters/socket-exception.filter';
 import { SendChatDto } from './dto/send-chat.dto';
 import { SendChatValidation } from './pipes/send-chat.validation';
 import { Server, Socket } from 'socket.io';
-import { ChattingService } from './chatting.service';
+import { SocketService } from './socket.service';
 import { SendChatWithFileDto } from './dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from './dto/send-chat-with-image.dto';
 import { SendChatInterceptor } from './interceptors/send-chat.interceptor';
@@ -25,12 +25,12 @@ import { SendChatInterceptor } from './interceptors/send-chat.interceptor';
   },
   maxHttpBufferSize: 10 * 10 ** 6, // 10MB
 })
-export class ChattingGateway
+export class SocketGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
   private clients: Map<string, Socket>;
 
-  constructor(private readonly chattingService: ChattingService) {
+  constructor(private readonly chattingService: SocketService) {
     this.clients = new Map<string, Socket>();
   }
   afterInit(server: Server) {

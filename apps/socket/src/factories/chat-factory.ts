@@ -44,7 +44,7 @@ class ChatOnlyMessageFactory implements AbstractChatFactory {
   }
   process(): Chat | Promise<Chat> {
     const chat: Chat = {
-      _id: new mongoose.Types.ObjectId(),
+      _id: new mongoose.Types.ObjectId().toString(),
       type: this.dto.type,
       name: this.dto.name,
       message: this.dto.message,
@@ -141,7 +141,7 @@ class ChatWithBufferFactory implements AbstractChatFactory {
         .then((uploadedChatFile) => {
           resolve({
             ...uploadedChatFile,
-            _id: new mongoose.Types.ObjectId(),
+            _id: new mongoose.Types.ObjectId().toString(),
             name: this.dto.name,
             type: this.dto.type,
             message: this.dto.message,

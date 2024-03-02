@@ -23,8 +23,11 @@ export class RedisService {
     return this._client;
   }
 
-  appendChat(roomId: string, chat: Chat) {
-    return this._client.rPush(roomId, JSON.stringify(chat));
+  async appendChat(roomId: string, chat: Chat) {
+    const isLock = await this._client.get(`lock-${roomId}`);
+    if (isLock)
+      return this._client.lPush(`temp-${roomId}`, JSON.stringify(chat));
+    else return this._client.rPush(`room-${roomId}`, JSON.stringify(chat));
   }
 
   async getChatRoomIds() {

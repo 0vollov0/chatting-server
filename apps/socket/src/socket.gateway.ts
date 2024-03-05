@@ -1,5 +1,6 @@
 import { UseFilters, UseInterceptors } from '@nestjs/common';
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -16,6 +17,12 @@ import { SocketService } from './socket.service';
 import { SendChatWithFileDto } from './dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from './dto/send-chat-with-image.dto';
 import { SendChatInterceptor } from './interceptors/send-chat.interceptor';
+import { JoinRoomDto } from './dto/join-room.dto';
+import { CreateRoomDto } from './dto/create-room.dto';
+import { CreateRoomValidation } from './pipes/create-room.validation';
+import { JoinRoomValidation } from './pipes/join-room.validation';
+import { ExitRoomDto } from './dto/exit-room.dto';
+import { ExitRoomValidation } from './pipes/exit-room.validation';
 
 @WebSocketGateway(+process.env.SOCKET_PORT || 8081, {
   cors: {
@@ -30,7 +37,10 @@ export class SocketGateway
 {
   private clients: Map<string, Socket>;
 
-  constructor(private readonly chattingService: SocketService) {
+  constructor(
+    private readonly chattingService: SocketService,
+    private readonly socketService: SocketService,
+  ) {
     this.clients = new Map<string, Socket>();
   }
   afterInit(server: Server) {
@@ -41,9 +51,10 @@ export class SocketGateway
     try {
       if (
         typeof client.handshake.auth.name === 'string' &&
-        client.handshake.auth.name.length > 1
+        client.handshake.auth.name.length > 1 &&
+        !this.clients.has(client.handshake.auth.name)
       ) {
-        this.clients.set(client.id, client);
+        this.clients.set(client.handshake.auth.name, client);
       } else {
         client.disconnect(true);
       }
@@ -53,7 +64,7 @@ export class SocketGateway
   }
 
   handleDisconnect(client: Socket) {
-    this.clients.delete(client.id);
+    this.clients.delete(client.handshake.auth.name);
     client.disconnect(true);
   }
 
@@ -68,5 +79,32 @@ export class SocketGateway
     dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
   ) {
     this.chattingService.handleChat(dto);
+  }
+
+  @UseFilters(SocketExceptionFilter)
+  @SubscribeMessage('create-room')
+  createRoom(
+    @MessageBody(CreateRoomValidation) dto: CreateRoomDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.socketService.createRoom(client, dto);
+  }
+
+  @UseFilters(SocketExceptionFilter)
+  @SubscribeMessage('join-room')
+  joinRoom(
+    @MessageBody(JoinRoomValidation) dto: JoinRoomDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.socketService.joinRoom(client, dto);
+  }
+
+  @UseFilters(SocketExceptionFilter)
+  @SubscribeMessage('exit-room')
+  exitRoom(
+    @MessageBody(ExitRoomValidation) dto: ExitRoomDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.socketService.exitRoom(client, dto);
   }
 }

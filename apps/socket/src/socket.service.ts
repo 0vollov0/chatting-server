@@ -1,15 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { SendChatWithFileDto } from './dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from './dto/send-chat-with-image.dto';
 import { SendChatDto } from './dto/send-chat.dto';
 import { ChatFactory } from './factories/chat-factory';
 import { RedisService } from 'apps/common/src/redis/redis.service';
+import { ChatRoomsService } from 'apps/common/src/chat-rooms/chat-rooms.service';
+import { CreateRoomDto } from './dto/create-room.dto';
+import { JoinRoomDto } from './dto/join-room.dto';
+import { WsException } from '@nestjs/websockets';
+import { ExitRoomDto } from './dto/exit-room.dto';
 
 @Injectable()
 export class SocketService {
   private _server: Server;
-  constructor(private readonly redisService: RedisService) {}
+  constructor(
+    private readonly redisService: RedisService,
+    private readonly chatRoomsService: ChatRoomsService,
+  ) {}
 
   public set server(server: Server) {
     this._server = server;
@@ -24,9 +32,40 @@ export class SocketService {
   ) {
     const chatFactory = new ChatFactory(dto);
     const chat = await chatFactory.process();
-    this.redisService.appendChat(`${dto.roomId}`, chat).then((value) => {
-      console.log(chat);
-      console.log(value);
+    this.redisService.appendChat(`${dto.roomId}`, chat).then(() => {
+      this._server.to(dto.roomId).emit('chat', chat);
+    });
+  }
+
+  async createRoom(client: Socket, dto: CreateRoomDto) {
+    const chatRoom = await this.chatRoomsService.createRoom(dto.name);
+    await client.join(chatRoom._id.toString());
+    client.emit('create-room', {
+      _id: chatRoom._id,
+      name: chatRoom.name,
+      createdAt: chatRoom.createdAt,
+    });
+  }
+
+  async joinRoom(client: Socket, dto: JoinRoomDto) {
+    const chatRoom = await this.chatRoomsService.findRoom(dto._id);
+    if (!chatRoom)
+      throw new WsException({
+        code: 100010,
+        message: 'The requested chat room does not exist.',
+      });
+    await client.join(dto._id);
+    client.emit('join-room', {
+      _id: chatRoom._id,
+      name: chatRoom.name,
+      createdAt: chatRoom.createdAt,
+    });
+  }
+
+  exitRoom(client: Socket, dto: ExitRoomDto) {
+    client.emit('exit-room', {
+      _id: dto._id,
+      exited: client.rooms.delete(dto._id),
     });
   }
 }

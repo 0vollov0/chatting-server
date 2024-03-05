@@ -12,7 +12,7 @@ export class WorkerService {
     @InjectModel(ChatRoom.name) private chatRoomModel: Model<ChatRoom>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS, {
+  @Cron(CronExpression.EVERY_MINUTE, {
     name: 'save_chat',
     timeZone: 'Asia/Seoul',
   })

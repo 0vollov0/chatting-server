@@ -39,4 +39,8 @@ export class UsersService {
         .catch(reject);
     });
   }
+
+  findById(id: string) {
+    return this.userModel.findById(id);
+  }
 }

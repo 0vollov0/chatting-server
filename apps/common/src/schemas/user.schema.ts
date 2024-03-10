@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Matches } from 'class-validator';
+import { CommonSchema } from './common.schema';
 
 @Schema({
   _id: true,
@@ -9,16 +10,7 @@ import { Matches } from 'class-validator';
   versionKey: false,
   strict: true,
 })
-export class User {
-  @ApiProperty({ type: String })
-  _id: string;
-
-  @ApiProperty({ type: Date })
-  createdAt: Date;
-
-  @ApiProperty({ type: Date })
-  updatedAt: Date;
-
+export class User extends CommonSchema {
   @ApiProperty({ type: String })
   @Matches(/^[a-zA-Z가-힣][a-zA-Z가-힣0-9]{1,31}$/, {
     message:

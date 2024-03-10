@@ -5,6 +5,8 @@ import { AuthService } from './auth.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthJoinResponse, AuthLoginResponse } from './api-response';
 import { TUserPayload, UserPayload } from '../users/decorators/user.decorator';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { RefreshTokenValidation } from './pipelines/refresh-token.validation';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -28,5 +30,14 @@ export class AuthController {
   @Post('login')
   async login(@UserPayload() user: TUserPayload) {
     return this.authService.login(user);
+  }
+
+  @Post('refresh')
+  @ApiResponse({
+    status: 200,
+    type: AuthLoginResponse,
+  })
+  refreshToken(@Body(RefreshTokenValidation) dto: RefreshTokenDto) {
+    return this.authService.refreshToken(dto);
   }
 }

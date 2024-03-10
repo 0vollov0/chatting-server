@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Token } from 'apps/common/src/schemas/token.schema';
 import { Model } from 'mongoose';
 import { TUserPayload } from '../users/decorators/user.decorator';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,21 +26,30 @@ export class AuthService {
     }
   }
 
-  async login(userPayload: TUserPayload) {
+  login(userPayload: TUserPayload) {
     try {
-      const token = this.publishToken(userPayload);
-      await this.tokenModel.create(token);
-      return token;
+      return this.publishToken(userPayload);
     } catch (error) {
       throw new BadRequestException(error);
     }
+  }
+
+  async refreshToken({ _id, accessToken, refreshToken }: RefreshTokenDto) {
+    const result = await this.tokenModel.deleteOne({
+      accessToken,
+      refreshToken,
+    });
+
+    if (!result.deletedCount) throw new BadRequestException();
+
+    return this.publishToken({ _id });
   }
 
   validateUser(username: string, password: string) {
     return this.usersService.validate(username, password);
   }
 
-  private publishToken({ _id }: TUserPayload) {
+  private async publishToken({ _id }: Pick<TUserPayload, '_id'>) {
     const accessToken = this.jwtService.sign({
       _id,
     });
@@ -51,7 +61,8 @@ export class AuthService {
         expiresIn: '7d',
       },
     );
-
-    return { accessToken, refreshToken };
+    const token = { accessToken, refreshToken };
+    await this.tokenModel.create(token);
+    return token;
   }
 }

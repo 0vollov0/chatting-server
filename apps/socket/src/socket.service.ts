@@ -38,16 +38,23 @@ export class SocketService {
   }
 
   async createRoom(client: Socket, dto: CreateRoomDto) {
-    const chatRoom = await this.chatRoomsService.createRoom(
-      client.handshake.auth._id,
-      dto,
-    );
-    await client.join(chatRoom._id.toString());
-    client.emit('create-room', {
-      _id: chatRoom._id,
-      name: chatRoom.name,
-      createdAt: chatRoom.createdAt,
-    });
+    try {
+      const chatRoom = await this.chatRoomsService.createRoom(
+        client.handshake.auth._id,
+        dto,
+      );
+      await client.join(chatRoom._id.toString());
+      client.emit('create-room', {
+        _id: chatRoom._id,
+        name: chatRoom.name,
+        createdAt: chatRoom.createdAt,
+      });
+    } catch (error) {
+      throw new WsException({
+        code: 100010,
+        message: 'The requested chat room is not available to create.',
+      });
+    }
   }
 
   async joinRoom(client: Socket, dto: JoinRoomDto) {

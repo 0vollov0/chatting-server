@@ -5,6 +5,7 @@ import {
   ChatRoomSchema,
 } from 'apps/common/src/schemas/chat-room.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { UsersModule } from 'apps/api/src/users/users.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MongooseModule } from '@nestjs/mongoose';
         schema: ChatRoomSchema,
       },
     ]),
+    UsersModule,
   ],
   providers: [ChatRoomsService],
   exports: [ChatRoomsService],

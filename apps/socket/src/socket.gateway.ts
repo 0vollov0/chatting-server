@@ -33,6 +33,7 @@ import { TUserPayload } from 'apps/api/src/users/decorators/user.decorator';
 import * as jwt from 'jsonwebtoken';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsersService } from 'apps/api/src/users/users.service';
+import { UserExistAuthGuard } from './guards/user-exist-auth.guard';
 
 @WebSocketGateway(+process.env.SOCKET_PORT || 8081, {
   cors: {
@@ -96,7 +97,7 @@ export class SocketGateway
     this.chattingService.handleChat(dto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(UserExistAuthGuard)
   @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('create-room')
   createRoom(
@@ -106,7 +107,7 @@ export class SocketGateway
     this.socketService.createRoom(client, dto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(UserExistAuthGuard)
   @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('join-room')
   joinRoom(

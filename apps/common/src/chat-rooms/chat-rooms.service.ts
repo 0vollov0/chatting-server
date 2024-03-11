@@ -1,20 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { UsersService } from 'apps/api/src/users/users.service';
 import { ChatRoom } from 'apps/common/src/schemas/chat-room.schema';
+import { CreateRoomDto } from 'apps/socket/src/dto/create-room.dto';
 import { Model } from 'mongoose';
 
 @Injectable()
 export class ChatRoomsService {
   constructor(
     @InjectModel(ChatRoom.name) private chatRoomModel: Model<ChatRoom>,
+    private readonly usersService: UsersService,
   ) {}
 
   findRoom(_id: string) {
     return this.chatRoomModel.findById(_id);
   }
 
-  createRoom(name: string) {
-    return this.chatRoomModel.create({ name });
+  async createRoom(creatorId: string, dto: CreateRoomDto) {
+    const participants = await this.usersService.find([
+      creatorId,
+      ...dto.participantIds,
+    ]);
+    return this.chatRoomModel.create({
+      name: dto.name,
+      participants: participants.map((participant) => ({
+        _id: participant._id,
+        name: participant.name,
+      })),
+    });
   }
 
   searchRoom(name: string) {

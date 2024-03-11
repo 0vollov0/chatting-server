@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'apps/common/src/schemas/user.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -42,5 +42,13 @@ export class UsersService {
 
   findById(id: string) {
     return this.userModel.findById(id);
+  }
+
+  find(ids: string[]) {
+    return this.userModel.find({
+      _id: {
+        $in: ids.map((id) => new mongoose.Types.ObjectId(id)),
+      },
+    });
   }
 }

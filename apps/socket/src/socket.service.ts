@@ -38,7 +38,10 @@ export class SocketService {
   }
 
   async createRoom(client: Socket, dto: CreateRoomDto) {
-    const chatRoom = await this.chatRoomsService.createRoom(dto.name);
+    const chatRoom = await this.chatRoomsService.createRoom(
+      client.handshake.auth._id,
+      dto,
+    );
     await client.join(chatRoom._id.toString());
     client.emit('create-room', {
       _id: chatRoom._id,

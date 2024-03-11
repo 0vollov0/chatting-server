@@ -9,6 +9,6 @@ export class SendChatDto extends PickType(Chat, ['type'] as const) {
   @Length(1, 512)
   message: string;
 
-  @Length(1, 64)
-  name: string;
+  /* @Length(1, 64)
+  name: string; */
 }

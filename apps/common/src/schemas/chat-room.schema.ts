@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Chat, ChatSchema } from './chat.schema';
 import { IsMongoId, Length } from 'class-validator';
+import { Participant, ParticipantSchema } from './participant.schema';
 
 @Schema({
   _id: true,
@@ -17,6 +18,9 @@ export class ChatRoom {
   @Prop({ type: String, required: true, maxlength: 64 })
   name: string;
 
+  @Prop({ type: [ParticipantSchema], default: [] })
+  participants: Participant[];
+
   @Prop({ type: [ChatSchema], default: [] })
   chats: Chat[];
 
@@ -24,5 +28,4 @@ export class ChatRoom {
   createdAt: Date;
 }
 const ChatRoomSchema = SchemaFactory.createForClass(ChatRoom);
-// ChatRoomSchema.index({ name: 1 }, { unique: true });
 export { ChatRoomSchema };

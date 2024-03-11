@@ -41,9 +41,9 @@ export class Chat {
   })
   type: ChatType;
 
-  @ApiProperty({ type: String, maxLength: 64 })
+  /* @ApiProperty({ type: String, maxLength: 64 })
   @Prop({ type: String, maxlength: 64, required: true })
-  name: string;
+  name: string; */
 
   @ApiProperty({ type: String, maxLength: 512, required: false })
   @Prop({ type: String, maxlength: 512, required: false })

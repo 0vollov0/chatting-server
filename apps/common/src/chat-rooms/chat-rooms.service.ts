@@ -54,4 +54,23 @@ export class ChatRoomsService {
       { chats: 0 },
     );
   }
+
+  async exitRoom(_id: string, participantId: string) {
+    const result = await this.chatRoomModel.updateOne(
+      {
+        _id: new mongoose.Types.ObjectId(_id),
+      },
+      {
+        $pull: {
+          participants: {
+            _id: {
+              $eq: new mongoose.Types.ObjectId(participantId),
+            },
+          },
+        },
+      },
+    );
+
+    return result.modifiedCount && result.matchedCount > 0 ? true : false;
+  }
 }

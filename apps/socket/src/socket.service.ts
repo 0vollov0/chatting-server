@@ -69,10 +69,20 @@ export class SocketService {
     });
   }
 
-  exitRoom(client: Socket, dto: ExitRoomDto) {
-    client.emit('exit-room', {
-      _id: dto._id,
-      exited: client.rooms.delete(dto._id),
-    });
+  async exitRoom(client: Socket, dto: ExitRoomDto) {
+    const result = await this.chatRoomsService.exitRoom(
+      dto._id,
+      client.handshake.auth._id,
+    );
+    if (result) {
+      client.rooms.delete(dto._id);
+      client.emit('exit-room', {
+        _id: dto._id,
+      });
+    } else
+      throw new WsException({
+        code: 100010,
+        message: 'The requested chat room is not available to exit.',
+      });
   }
 }

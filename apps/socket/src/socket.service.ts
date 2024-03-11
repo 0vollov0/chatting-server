@@ -51,16 +51,20 @@ export class SocketService {
   }
 
   async joinRoom(client: Socket, dto: JoinRoomDto) {
-    const chatRoom = await this.chatRoomsService.findRoom(dto._id);
+    const chatRoom = await this.chatRoomsService.findRoomCanJoin(
+      dto._id,
+      client.handshake.auth._id,
+    );
     if (!chatRoom)
       throw new WsException({
         code: 100010,
-        message: 'The requested chat room does not exist.',
+        message: 'The requested chat room is not available to join.',
       });
     await client.join(dto._id);
     client.emit('join-room', {
       _id: chatRoom._id,
       name: chatRoom.name,
+      participants: chatRoom.participants,
       createdAt: chatRoom.createdAt,
     });
   }

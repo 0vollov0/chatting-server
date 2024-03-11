@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { UsersService } from 'apps/api/src/users/users.service';
 import { ChatRoom } from 'apps/common/src/schemas/chat-room.schema';
 import { CreateRoomDto } from 'apps/socket/src/dto/create-room.dto';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 
 @Injectable()
 export class ChatRoomsService {
@@ -13,7 +13,21 @@ export class ChatRoomsService {
   ) {}
 
   findRoom(_id: string) {
-    return this.chatRoomModel.findById(_id);
+    return this.chatRoomModel.findById(_id, { chats: 0 });
+  }
+
+  findRoomCanJoin(_id: string, participantId: string) {
+    return this.chatRoomModel.findOne(
+      {
+        _id: new mongoose.Types.ObjectId(_id),
+        'participants._id': {
+          $ne: new mongoose.Types.ObjectId(participantId),
+        },
+      },
+      {
+        chats: 0,
+      },
+    );
   }
 
   async createRoom(creatorId: string, dto: CreateRoomDto) {

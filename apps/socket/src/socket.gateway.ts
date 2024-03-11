@@ -1,4 +1,9 @@
-import { UseFilters, UseInterceptors } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  UseFilters,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -23,6 +28,11 @@ import { CreateRoomValidation } from './pipes/create-room.validation';
 import { JoinRoomValidation } from './pipes/join-room.validation';
 import { ExitRoomDto } from './dto/exit-room.dto';
 import { ExitRoomValidation } from './pipes/exit-room.validation';
+import { ConfigService } from '@nestjs/config';
+import { TUserPayload } from 'apps/api/src/users/decorators/user.decorator';
+import * as jwt from 'jsonwebtoken';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UsersService } from 'apps/api/src/users/users.service';
 
 @WebSocketGateway(+process.env.SOCKET_PORT || 8081, {
   cors: {
@@ -40,6 +50,8 @@ export class SocketGateway
   constructor(
     private readonly chattingService: SocketService,
     private readonly socketService: SocketService,
+    private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
   ) {
     this.clients = new Map<string, Socket>();
   }
@@ -47,30 +59,33 @@ export class SocketGateway
     this.chattingService.server = server;
   }
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     try {
-      if (
-        typeof client.handshake.auth.name === 'string' &&
-        client.handshake.auth.name.length > 1 &&
-        !this.clients.has(client.handshake.auth.name)
-      ) {
-        this.clients.set(client.handshake.auth.name, client);
-      } else {
-        client.disconnect(true);
-      }
+      const payload = jwt.verify(
+        client.handshake.auth.accessToken,
+        this.configService.get<string>('JWT_SECRET'),
+        {
+          ignoreExpiration: false,
+        },
+      ) as TUserPayload;
+      const user = await this.usersService.findById(payload._id);
+      if (!user) throw new UnauthorizedException();
+      client.handshake.auth._id = payload._id;
+      this.clients.set(client.handshake.auth._id, client);
     } catch (error) {
       client.disconnect(true);
     }
   }
 
   handleDisconnect(client: Socket) {
-    this.clients.delete(client.handshake.auth.name);
+    this.clients.delete(client.handshake.auth._id);
     client.disconnect(true);
   }
 
   @WebSocketServer()
   server: Server;
 
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(SendChatInterceptor)
   @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('chat')
@@ -81,6 +96,7 @@ export class SocketGateway
     this.chattingService.handleChat(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('create-room')
   createRoom(
@@ -90,6 +106,7 @@ export class SocketGateway
     this.socketService.createRoom(client, dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('join-room')
   joinRoom(

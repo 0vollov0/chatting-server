@@ -1,9 +1,4 @@
-import {
-  UnauthorizedException,
-  UseFilters,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { UnauthorizedException, UseFilters, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -21,7 +16,6 @@ import { Server, Socket } from 'socket.io';
 import { SocketService } from './socket.service';
 import { SendChatWithFileDto } from './dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from './dto/send-chat-with-image.dto';
-import { SendChatInterceptor } from './interceptors/send-chat.interceptor';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { CreateRoomValidation } from './pipes/create-room.validation';
@@ -34,6 +28,7 @@ import * as jwt from 'jsonwebtoken';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsersService } from 'apps/api/src/users/users.service';
 import { UserExistAuthGuard } from './guards/user-exist-auth.guard';
+import { ChatRoomsService } from 'apps/common/src/chat-rooms/chat-rooms.service';
 
 @WebSocketGateway(+process.env.SOCKET_PORT || 8081, {
   cors: {
@@ -53,6 +48,7 @@ export class SocketGateway
     private readonly socketService: SocketService,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
+    private readonly chatRoomsService: ChatRoomsService,
   ) {
     this.clients = new Map<string, Socket>();
   }
@@ -87,7 +83,6 @@ export class SocketGateway
   server: Server;
 
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(SendChatInterceptor)
   @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('chat')
   handleChat(
@@ -104,7 +99,7 @@ export class SocketGateway
     @MessageBody(CreateRoomValidation) dto: CreateRoomDto,
     @ConnectedSocket() client: Socket,
   ) {
-    this.socketService.createRoom(client, dto);
+    return this.socketService.createRoom(client, dto);
   }
 
   @UseGuards(UserExistAuthGuard)
@@ -114,7 +109,7 @@ export class SocketGateway
     @MessageBody(JoinRoomValidation) dto: JoinRoomDto,
     @ConnectedSocket() client: Socket,
   ) {
-    this.socketService.joinRoom(client, dto);
+    return this.socketService.joinRoom(client, dto);
   }
 
   @UseFilters(SocketExceptionFilter)
@@ -123,6 +118,6 @@ export class SocketGateway
     @MessageBody(ExitRoomValidation) dto: ExitRoomDto,
     @ConnectedSocket() client: Socket,
   ) {
-    this.socketService.exitRoom(client, dto);
+    return this.socketService.exitRoom(client, dto);
   }
 }

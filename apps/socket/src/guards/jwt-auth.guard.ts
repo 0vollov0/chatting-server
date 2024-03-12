@@ -8,7 +8,7 @@ export class JwtAuthGuard implements CanActivate {
   constructor(private readonly configService: ConfigService) {}
 
   canActivate(context: any): boolean | any | Promise<boolean | any> {
-    const token: string = context.args[0].handshake.auth.token;
+    const token: string = context.args[0].handshake.auth.accessToken;
     try {
       jwt.verify(token, this.configService.get<string>('JWT_SECRET'), {
         ignoreExpiration: false,

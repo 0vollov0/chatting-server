@@ -47,6 +47,7 @@ export class SocketService {
       client.emit('create-room', {
         _id: chatRoom._id,
         name: chatRoom.name,
+        participants: chatRoom.participants,
         createdAt: chatRoom.createdAt,
       });
     } catch (error) {

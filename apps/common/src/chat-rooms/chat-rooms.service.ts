@@ -73,4 +73,15 @@ export class ChatRoomsService {
 
     return result.modifiedCount && result.matchedCount > 0 ? true : false;
   }
+
+  findRoomsParticipated(participantId: string) {
+    return this.chatRoomModel.findOne(
+      {
+        'participants._id': new mongoose.Types.ObjectId(participantId),
+      },
+      {
+        chats: 0,
+      },
+    );
+  }
 }

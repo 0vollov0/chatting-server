@@ -69,6 +69,10 @@ export class SocketGateway
       if (!user) throw new UnauthorizedException();
       client.handshake.auth._id = payload._id;
       this.clients.set(client.handshake.auth._id, client);
+      const rooms = await this.chatRoomsService.findRoomsParticipated(
+        client.handshake.auth._id,
+      );
+      rooms.forEach(({ _id }) => client.join(_id.toString()));
     } catch (error) {
       client.disconnect(true);
     }

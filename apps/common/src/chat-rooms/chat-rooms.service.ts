@@ -75,7 +75,7 @@ export class ChatRoomsService {
   }
 
   findRoomsParticipated(participantId: string) {
-    return this.chatRoomModel.findOne(
+    return this.chatRoomModel.find(
       {
         'participants._id': new mongoose.Types.ObjectId(participantId),
       },

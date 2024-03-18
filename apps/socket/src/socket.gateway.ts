@@ -93,7 +93,7 @@ export class SocketGateway
     @MessageBody(SendChatValidation)
     dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
   ) {
-    this.chattingService.handleChat(dto);
+    return this.chattingService.handleChat(dto);
   }
 
   @UseGuards(UserExistAuthGuard)

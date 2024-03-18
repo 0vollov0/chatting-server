@@ -30,11 +30,15 @@ export class SocketService {
   async handleChat(
     dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
   ) {
-    const chatFactory = new ChatFactory(dto);
-    const chat = await chatFactory.process();
-    this.redisService.appendChat(`${dto.roomId}`, chat).then(() => {
-      this._server.to(dto.roomId).emit('chat', chat);
-    });
+    try {
+      const chatFactory = new ChatFactory(dto);
+      const chat = await chatFactory.process();
+      this.redisService.appendChat(`${dto.roomId}`, chat).then(() => {
+        this._server.to(dto.roomId).emit('chat', chat);
+      });
+    } catch (error) {
+      throw new WsException(error);
+    }
   }
 
   async createRoom(client: Socket, dto: CreateRoomDto) {

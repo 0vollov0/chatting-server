@@ -3,7 +3,8 @@ import { FileModule } from './file.module';
 import * as fs from 'fs';
 import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
-import { json } from 'express';
+import * as express from 'express';
+import * as serveIndex from 'serve-index';
 
 async function bootstrap() {
   const rootPath = join(__dirname, '../../..', 'bucket');
@@ -19,7 +20,16 @@ async function bootstrap() {
     }
   });
   const app = await NestFactory.create(FileModule);
-  app.use(json({ limit: '100mb' }));
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+  });
+  app.use(
+    '/bucket',
+    express.static(rootPath),
+    serveIndex(rootPath, { icons: true }),
+  );
+  app.use(express.json({ limit: '100mb' }));
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

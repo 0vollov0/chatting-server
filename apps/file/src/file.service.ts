@@ -4,10 +4,11 @@ import * as fs from 'fs';
 import { join } from 'path';
 import { UploadedChatFile } from 'apps/common/src/schemas/chat.schema';
 import * as moment from 'moment';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FileService {
-  constructor() {}
+  constructor(private readonly configService: ConfigService) {}
   createFile(dto: CreateFileDto) {
     const roomPath = join(
       __dirname,
@@ -29,7 +30,12 @@ export class FileService {
             originalname: dto.originalname,
             size: dto.buffer.length,
             expireAt: moment()
-              .add(dto.bufferType === 'file' ? 2 : 1, 'weeks')
+              .add(
+                dto.bufferType === 'file'
+                  ? +this.configService.get<string>('FILE_EXPIRE_WEEK')
+                  : +this.configService.get<string>('IMAGE_EXPIRE_WEEK'),
+                'weeks',
+              )
               .toDate(),
           };
           resolve(uploadedChatFile);

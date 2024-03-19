@@ -4,6 +4,9 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { RedisService } from 'apps/common/src/redis/redis.service';
 import { ChatRoom } from 'apps/common/src/schemas/chat-room.schema';
 import mongoose, { Model } from 'mongoose';
+import * as moment from 'moment';
+import * as fs from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class WorkerService {
@@ -40,5 +43,21 @@ export class WorkerService {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  removeExpiredFiles() {
+    const now = moment();
+    this.redisService.client.keys('expire-*').then((keys) => {
+      keys.forEach((key) => {
+        if (now.isAfter(moment(key.slice(7)))) {
+          this.redisService.client.lRange(key, 0, -1).then((paths) => {
+            paths.forEach((path) => {
+              fs.rmSync(join(__dirname, '../../..', 'bucket', path));
+            });
+          });
+        }
+      });
+    });
   }
 }

@@ -60,4 +60,19 @@ export class WorkerService {
       });
     });
   }
+
+  @Cron(CronExpression.EVERY_DAY_AT_4AM)
+  removeOldChats() {
+    const oneMonthAgo = moment().add(-1, 'months').toDate();
+    this.chatRoomModel.updateMany(
+      {},
+      {
+        $pull: {
+          chats: {
+            $lt: oneMonthAgo,
+          },
+        },
+      },
+    );
+  }
 }

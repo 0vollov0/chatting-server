@@ -1,7 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DatabasesService } from './databases.service';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -18,5 +20,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
     }),
   ],
+  providers: [DatabasesService],
+  exports: [DatabasesService],
 })
 export class DatabasesModule {}

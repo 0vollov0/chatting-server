@@ -8,8 +8,8 @@ import { RedisService } from 'apps/common/src/redis/redis.service';
 import { ChatRoomsService } from 'apps/common/src/chat-rooms/chat-rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
-import { WsException } from '@nestjs/websockets';
 import { ExitRoomDto } from './dto/exit-room.dto';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class SocketService {
@@ -33,11 +33,13 @@ export class SocketService {
     try {
       const chatFactory = new ChatFactory(dto);
       const chat = await chatFactory.process();
-      this.redisService.appendChat(`${dto.roomId}`, chat).then(() => {
-        this._server.to(dto.roomId).emit('chat', chat);
-      });
+      await this.redisService.appendChat(`${dto.roomId}`, chat);
+      this._server.to(dto.roomId).emit('chat', chat);
     } catch (error) {
-      throw new WsException(error);
+      throw new WsException({
+        status: 500,
+        message: 'send chat error',
+      });
     }
   }
 
@@ -56,21 +58,26 @@ export class SocketService {
       });
     } catch (error) {
       throw new WsException({
-        code: 100010,
-        message: 'The requested chat room is not available to create.',
+        status: 500,
+        message: 'create chat room error',
       });
     }
   }
 
   async joinRoom(client: Socket, dto: JoinRoomDto) {
+    if (client.rooms.has(dto._id))
+      throw new WsException({
+        status: 400,
+        message: 'already you have joined the room',
+      });
     const chatRoom = await this.chatRoomsService.findRoomCanJoin(
       dto._id,
       client.handshake.auth._id,
     );
     if (!chatRoom)
       throw new WsException({
-        code: 100010,
-        message: 'The requested chat room is not available to join.',
+        status: 500,
+        message: 'join room error',
       });
     await client.join(dto._id);
     client.emit('join-room', {
@@ -93,8 +100,8 @@ export class SocketService {
       });
     } else
       throw new WsException({
-        code: 100010,
-        message: 'The requested chat room is not available to exit.',
+        status: 500,
+        message: 'exit room error',
       });
   }
 }

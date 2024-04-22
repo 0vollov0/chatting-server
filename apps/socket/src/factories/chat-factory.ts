@@ -10,6 +10,7 @@ import * as moment from 'moment';
 import { Axios } from '../axios/axios';
 import mongoose from 'mongoose';
 import { BufferType } from 'apps/common/src/type';
+import { WsException } from '../exception/ws-exception-info';
 
 export interface AbstractChatFactory {
   process(): Chat | Promise<Chat>;
@@ -26,14 +27,23 @@ export class ChatFactory implements AbstractChatFactory {
       case ChatType.image:
         return new ChatWithImageFactory(dto as SendChatWithImageDto);
       default:
-        throw new Error('Unknown chat type.');
+        new WsException({
+          status: 500,
+          message: 'create chat factory object error',
+        });
     }
   }
   process(): Chat | Promise<Chat> {
-    throw new Error('Method not implemented.');
+    throw new WsException({
+      status: 500,
+      message: 'process chat error',
+    });
   }
   upload(): Promise<UploadedChatFile> {
-    throw new Error('Method not implemented.');
+    throw new WsException({
+      status: 500,
+      message: 'upload chat file error',
+    });
   }
 }
 
@@ -53,75 +63,12 @@ class ChatOnlyMessageFactory implements AbstractChatFactory {
     return chat;
   }
   upload(): Promise<UploadedChatFile> {
-    throw new Error('Method not implemented.');
+    throw new WsException({
+      status: 500,
+      message: 'upload chat file error',
+    });
   }
 }
-
-/* class ChatWithFileFactory implements AbstractChatFactory {
-  private dto: SendChatWithFileDto;
-  private axios: Axios;
-  constructor(dto: SendChatWithFileDto) {
-    this.dto = dto;
-    this.axios = Axios.getInstance();
-  }
-  process(): Chat | Promise<Chat> {
-    return new Promise<Chat>((resolve, reject) => {
-      this.upload()
-        .then((uploadedChatFile) => {
-          resolve({
-            ...uploadedChatFile,
-            _id: new mongoose.Types.ObjectId(),
-            name: this.dto.name,
-            type: this.dto.type,
-            message: this.dto.message,
-            createdAt: moment().toDate(),
-          });
-        })
-        .catch(reject);
-    });
-  }
-  upload(): Promise<UploadedChatFile> {
-    return this.axios.uploadFile({
-      type: 'file',
-      roomId: this.dto.roomId,
-      buffer: this.dto.buffer,
-      originalname: this.dto.originalname,
-    });
-  }
-} */
-
-/* class ChatWithImageFactory implements AbstractChatFactory {
-  private dto: SendChatWithImageDto;
-  private axios: Axios;
-  constructor(dto: SendChatWithImageDto) {
-    this.dto = dto;
-    this.axios = Axios.getInstance();
-  }
-  process(): Chat | Promise<Chat> {
-    return new Promise<Chat>((resolve, reject) => {
-      this.upload()
-        .then((uploadedChatFile) => {
-          resolve({
-            ...uploadedChatFile,
-            _id: new mongoose.Types.ObjectId(),
-            name: this.dto.name,
-            type: this.dto.type,
-            message: this.dto.message,
-            createdAt: moment().toDate(),
-          });
-        })
-        .catch(reject);
-    });
-  }
-  upload(): Promise<UploadedChatFile> {
-    return this.axios.uploadFile({
-      type: 'image',
-      roomId: this.dto.roomId,
-      buffer: this.dto.buffer,
-      originalname: this.dto.originalname,
-    });
-  }
-} */
 
 class ChatWithBufferFactory implements AbstractChatFactory {
   protected dto: SendChatWithImageDto | SendChatWithFileDto;
@@ -142,7 +89,6 @@ class ChatWithBufferFactory implements AbstractChatFactory {
           resolve({
             ...uploadedChatFile,
             _id: new mongoose.Types.ObjectId().toString(),
-            // name: this.dto.name,
             type: this.dto.type,
             message: this.dto.message,
             createdAt: moment().toDate(),

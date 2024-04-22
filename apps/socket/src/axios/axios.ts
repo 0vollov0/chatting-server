@@ -1,4 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 import { UploadedChatFile } from 'apps/common/src/schemas/chat.schema';
 import { BufferType } from 'apps/common/src/type';
 import axios from 'axios';
@@ -31,9 +32,12 @@ export class Axios {
         .then(({ status, data }) => {
           if (status === HttpStatus.CREATED) {
             resolve(data);
-          } else reject(new Error(''));
+          } else
+            reject(new WsException({ status: 400, message: 'upload failed' }));
         })
-        .catch(reject);
+        .catch(() =>
+          reject(new WsException({ status: 400, message: 'upload failed' })),
+        );
     });
   }
 }

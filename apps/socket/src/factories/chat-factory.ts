@@ -10,7 +10,7 @@ import * as moment from 'moment';
 import { Axios } from '../axios/axios';
 import mongoose from 'mongoose';
 import { BufferType } from 'apps/common/src/type';
-import { WsException } from '../exception/ws-exception-info';
+import { WsException } from '@nestjs/websockets';
 
 export interface AbstractChatFactory {
   process(): Chat | Promise<Chat>;

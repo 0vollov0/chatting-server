@@ -32,7 +32,7 @@ export class Chat {
   })
   _id: string;
 
-  @ApiProperty({ type: ChatType })
+  @ApiProperty({ enum: ChatType })
   @IsEnum(ChatType)
   @Prop({
     type: Number,

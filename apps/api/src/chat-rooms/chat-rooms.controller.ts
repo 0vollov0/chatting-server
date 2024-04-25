@@ -15,6 +15,7 @@ export class ChatRoomsController {
   constructor(private readonly chatRoomsService: ChatRoomsService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
     type: GetChatRoomsResponse,
@@ -24,6 +25,7 @@ export class ChatRoomsController {
   }
 
   @Get('chats')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
     type: Chat,

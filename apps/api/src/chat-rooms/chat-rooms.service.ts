@@ -6,11 +6,14 @@ import mongoose, { Model } from 'mongoose';
 import { FindChatRoomDto } from './dto/find-chat-room.dto';
 import { paginationMock } from 'apps/common/src/mock';
 import { FindChatsDto } from './dto/find-chats.dto';
+import { RedisService } from 'apps/common/src/redis/redis.service';
+import * as moment from 'moment';
 
 @Injectable()
 export class ChatRoomsService {
   constructor(
     private readonly databasesService: DatabasesService,
+    private readonly redisService: RedisService,
     @InjectModel(ChatRoom.name) private chatRoomModel: Model<ChatRoom>,
   ) {}
 
@@ -32,7 +35,7 @@ export class ChatRoomsService {
     });
   }
 
-  findChats({ roomId, lastChatId }: FindChatsDto) {
+  findChats({ roomId, lastCheckTime }: FindChatsDto) {
     return new Promise((resolve, reject) => {
       this.chatRoomModel
         .aggregate([
@@ -51,13 +54,26 @@ export class ChatRoomsService {
           },
           {
             $match: {
-              _id: {
-                $gt: new mongoose.Types.ObjectId(lastChatId),
+              createdAt: {
+                $gt: lastCheckTime,
               },
             },
           },
         ])
-        .then(resolve)
+        .then((dbChats) => {
+          this.redisService
+            .getChats(roomId)
+            .then((cacheChats) => {
+              resolve(
+                dbChats.concat(
+                  cacheChats.filter(
+                    (chat) => moment(chat.createdAt).toDate() > lastCheckTime,
+                  ),
+                ),
+              );
+            })
+            .catch(reject);
+        })
         .catch(reject);
     });
   }

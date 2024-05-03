@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Matches } from 'class-validator';
 import { CommonSchema } from './common.schema';
+import { Document } from 'mongoose';
 
 @Schema({
   _id: true,
@@ -27,4 +28,9 @@ export class User extends CommonSchema {
   @Prop({ type: String, required: true })
   password: string;
 }
+export type UserDocument = Document<unknown, object, User> &
+  User &
+  Required<{
+    _id: string;
+  }>;
 export const UserSchema = SchemaFactory.createForClass(User);

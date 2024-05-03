@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonSchema } from './common.schema';
 import { IsJWT } from 'class-validator';
+import { Document } from 'mongoose';
 
 @Schema({
   _id: true,
@@ -26,4 +27,9 @@ TokenSchema.index(
   { accessToken: 1, refreshToken: 1 },
   { unique: true, name: 'token_index' },
 );
+export type TokenDocument = Document<unknown, object, Token> &
+  Token &
+  Required<{
+    _id: string;
+  }>;
 export { TokenSchema };

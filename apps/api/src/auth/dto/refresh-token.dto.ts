@@ -1,5 +1,5 @@
 import { PickType } from '@nestjs/swagger';
-import { Token } from 'apps/common/src/schemas/token.schema';
+import { Token } from '@common/schemas/token.schema';
 
 export class RefreshTokenDto extends PickType(Token, [
   'accessToken',

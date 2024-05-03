@@ -3,10 +3,11 @@ import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Token } from 'apps/common/src/schemas/token.schema';
+import { Token } from '@common/schemas/token.schema';
 import { Model } from 'mongoose';
 import { TUserPayload } from '../users/decorators/user.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { UserDocument } from '@common/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +17,7 @@ export class AuthService {
     @InjectModel(Token.name) private tokenModel: Model<Token>,
   ) {}
 
-  async join(dto: CreateUserDto) {
+  async join(dto: CreateUserDto): Promise<UserDocument> {
     try {
       const user: any = await this.usersService.create(dto);
       delete user._doc.password;

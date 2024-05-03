@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, Types } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from '@common/schemas/user.schema';
@@ -49,12 +49,6 @@ export class UsersService {
       _id: {
         $in: ids.map((id) => new mongoose.Types.ObjectId(id)),
       },
-    });
-  }
-
-  private deleteUser(_id: string | Types.ObjectId) {
-    return this.userModel.deleteOne({
-      _id: typeof _id === 'string' ? new mongoose.Types.ObjectId(_id) : _id,
     });
   }
 }

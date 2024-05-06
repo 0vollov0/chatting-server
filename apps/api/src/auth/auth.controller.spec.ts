@@ -24,7 +24,7 @@ describe('AuthController', () => {
   let tokenAfterLogin: Pick<Token, 'accessToken' | 'refreshToken'>;
   let tokenAfterRefresh: Pick<Token, 'accessToken' | 'refreshToken'>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
         CommonModule,

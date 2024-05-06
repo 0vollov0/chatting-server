@@ -8,6 +8,7 @@ import { PaginationMock, paginationMock } from '@common/mock';
 import { FindChatsDto } from './dto/find-chats.dto';
 import * as moment from 'moment';
 import { RedisService } from '@common/redis/redis.service';
+import { Chat } from '@common/schemas/chat.schema';
 
 @Injectable()
 export class ChatRoomsService {
@@ -35,7 +36,7 @@ export class ChatRoomsService {
     });
   }
 
-  findChats({ roomId, lastCheckTime }: FindChatsDto) {
+  findChats({ roomId, lastCheckTime }: FindChatsDto): Promise<Chat[]> {
     return new Promise((resolve, reject) => {
       this.chatRoomModel
         .aggregate([

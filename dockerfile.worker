@@ -1,0 +1,12 @@
+FROM node:18.18.0
+
+WORKDIR /home/ubuntu/app
+
+COPY . .
+
+RUN yarn
+RUN yarn build worker
+
+EXPOSE 8083
+
+CMD ["node", "dist/apps/worker/main"]

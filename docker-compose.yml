@@ -1,4 +1,4 @@
-version: '3.9'
+version: '3.7'
 
 services:
   mongodb:
@@ -8,12 +8,73 @@ services:
       - "10001:27017"
     volumes:
       - chatting_server_mongodb_data:/data/db
+    networks:
+      - chatting_server
 
   redis:
     image: redis:7.2.4
     container_name: redis
     ports:
       - "10002:6379"
+    networks:
+      - chatting_server
+
+  chatting_api:
+    container_name: chatting_api
+    build:
+      context: .
+      dockerfile: ./dockerfile.api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - chatting_server
+  
+  chatting_socket:
+    container_name: chatting_socket
+    build:
+      context: .
+      dockerfile: ./dockerfile.socket
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - chatting_server
+  
+  chatting_file:
+    container_name: chatting_file
+    build:
+      context: .
+      dockerfile: ./dockerfile.file
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - chatting_server
+
+  
+  chatting_worker:
+    container_name: chatting_worker
+    build:
+      context: .
+      dockerfile: ./dockerfile.worker
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - chatting_server
+
 
 volumes:
   chatting_server_mongodb_data:
+
+networks:
+  chatting_server:

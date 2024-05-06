@@ -1,0 +1,12 @@
+FROM node:18.18.0
+
+WORKDIR /home/ubuntu/app
+
+COPY . .
+
+RUN yarn
+RUN yarn build socket
+
+EXPOSE 8081
+
+CMD ["node", "dist/apps/socket/main"]

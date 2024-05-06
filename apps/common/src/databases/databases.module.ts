@@ -10,13 +10,18 @@ import { DatabasesService } from './databases.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        uri: `mongodb://${configService.get<string>(
-          'MONGODB_USER',
-        )}:${configService.get<string>(
-          'MONGODB_PASSWORD',
-        )}@${configService.get<string>(
-          'MONGODB_URL',
-        )}/${configService.get<string>('MONGODB_DATABASE')}`,
+        uri:
+          configService.get<string>('ENV') === 'LOCAL'
+            ? `mongodb://${configService.get<string>(
+                'MONGODB_URL',
+              )}/${configService.get<string>('MONGODB_DATABASE')}`
+            : `mongodb://${configService.get<string>(
+                'MONGODB_USER',
+              )}:${configService.get<string>(
+                'MONGODB_PASSWORD',
+              )}@${configService.get<string>(
+                'MONGODB_URL',
+              )}/${configService.get<string>('MONGODB_DATABASE')}`,
       }),
     }),
   ],

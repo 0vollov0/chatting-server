@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  mongodb:
+    image: mongo:7.0.10-rc0-jammy
+    container_name: mongodb
+    ports:
+      - "10001:27017"
+    volumes:
+      - chatting_server_mongodb_data:/data/db
+
+  redis:
+    image: redis:7.2.4
+    container_name: redis
+    ports:
+      - "10002:6379"
+
+volumes:
+  chatting_server_mongodb_data:

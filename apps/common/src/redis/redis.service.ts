@@ -7,11 +7,19 @@ import { Chat } from '../schemas/chat.schema';
 export class RedisService {
   private _client: ReturnType<typeof createClient>;
   constructor(private readonly configService: ConfigService) {
-    const password = this.configService.get<string>('REDIS_PASSWORD');
+    const password =
+      this.configService.get<string>('ENV') === 'LOCAL'
+        ? undefined
+        : this.configService.get<string>('REDIS_PASSWORD');
     const host = this.configService.get<string>('REDIS_HOST');
     const port = this.configService.get<string>('REDIS_PORT');
-
-    createClient({ url: `redis://:${password}@${host}:${port}` })
+    createClient({
+      socket: {
+        port: +port,
+        host,
+      },
+      password: password,
+    })
       .on('error', (err) => {
         console.error(err);
       })

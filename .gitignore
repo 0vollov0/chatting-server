@@ -39,3 +39,5 @@ bucket
 html
 
 todo.md
+
+.env.development

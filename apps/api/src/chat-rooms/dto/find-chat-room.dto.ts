@@ -1,3 +1,3 @@
-import { FindPaginationDto } from 'apps/common/src/databases/databases.service';
+import { FindPaginationDto } from '@common/databases/databases.service';
 
 export class FindChatRoomDto extends FindPaginationDto {}

@@ -7,7 +7,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Token, TokenSchema } from 'apps/common/src/schemas/token.schema';
+import { Token, TokenSchema } from '@common/schemas/token.schema';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({

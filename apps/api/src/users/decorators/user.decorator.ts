@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { User } from 'apps/common/src/schemas/user.schema';
+import { User } from '@common/schemas/user.schema';
 
 export type TUserPayload = Pick<User, '_id' | 'createdAt' | 'updatedAt'>;
 

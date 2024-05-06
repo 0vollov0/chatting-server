@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DatabasesService } from 'apps/common/src/databases/databases.service';
-import { ChatRoom } from 'apps/common/src/schemas/chat-room.schema';
+import { DatabasesService } from '@common/databases/databases.service';
+import { ChatRoom } from '@common/schemas/chat-room.schema';
 import mongoose, { Model } from 'mongoose';
 import { FindChatRoomDto } from './dto/find-chat-room.dto';
-import { paginationMock } from 'apps/common/src/mock';
+import { PaginationMock, paginationMock } from '@common/mock';
 import { FindChatsDto } from './dto/find-chats.dto';
-import { RedisService } from 'apps/common/src/redis/redis.service';
 import * as moment from 'moment';
+import { RedisService } from '@common/redis/redis.service';
 
 @Injectable()
 export class ChatRoomsService {
@@ -17,7 +17,7 @@ export class ChatRoomsService {
     @InjectModel(ChatRoom.name) private chatRoomModel: Model<ChatRoom>,
   ) {}
 
-  find({ limit, page }: FindChatRoomDto) {
+  find({ limit, page }: FindChatRoomDto): Promise<PaginationMock<ChatRoom>> {
     return new Promise((resolve, reject) => {
       this.chatRoomModel
         .aggregate([

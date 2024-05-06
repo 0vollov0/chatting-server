@@ -1,6 +1,6 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { ChatRoom } from 'apps/common/src/schemas/chat-room.schema';
-import { Pagination } from 'apps/common/src/type';
+import { ChatRoom } from '@common/schemas/chat-room.schema';
+import { Pagination } from '@common/type';
 
 class ChatRoomSurface extends OmitType(ChatRoom, ['chats'] as const) {}
 

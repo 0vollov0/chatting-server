@@ -5,7 +5,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetChatRoomsResponse } from './chat-rooms.http-response';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FindChatsDto } from './dto/find-chats.dto';
-import { Chat } from 'apps/common/src/schemas/chat.schema';
+import { Chat } from '@common/schemas/chat.schema';
 
 @ApiTags('chat-rooms')
 @ApiBearerAuth()

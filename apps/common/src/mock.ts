@@ -1,6 +1,6 @@
 import { Pagination } from './type';
 
-interface PaginationMock<T> extends Pagination {
+export interface PaginationMock<T> extends Pagination {
   docs: Array<T>;
 }
 

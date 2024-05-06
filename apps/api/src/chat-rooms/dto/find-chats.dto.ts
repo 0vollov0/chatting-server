@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Iso8601Transform } from 'apps/common/src/transforms/Iso-8601.transform';
+import { Iso8601Transform } from '@common/transforms/Iso-8601.transform';
 import { Transform } from 'class-transformer';
 import { IsDate, IsMongoId } from 'class-validator';
 

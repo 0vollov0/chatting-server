@@ -1,6 +1,7 @@
 ## Description
 
 This project is chatting service that is server side with a socket.
+
 This project has a monorepo architecture, and the applications are architecture as bellow.
 
 ## Apps
@@ -27,6 +28,7 @@ This project has a monorepo architecture, and the applications are architecture 
 ## Before to run
 
 You need to update .env.local file to run this project.
+
 Please follow the comment on the that file.
 
 ## Installation

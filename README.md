@@ -23,7 +23,7 @@ This project has a monorepo architecture, and the applications are architecture 
 - Some test codes including unit and e2e
 
 ## System architecture
-![SYSTEM_ARCHITECTURE](./system_architecture.webp)  
+![SYSTEM_ARCHITECTURE](./system_architecture.png)  
 
 
 ## Before to run

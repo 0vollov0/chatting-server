@@ -16,6 +16,7 @@ This project has a monorepo architecture, and the applications are architecture 
 - User registration and login function
 - Security communication feature utilizing JWT token
 - Connecting and disconnecting sockets
+- Chatting room management function
 - Text and file relay and storage function
 - A feature that makes cache with a chat log
 - A feature that save a chat log that has cached with out concurrency problem

@@ -7,7 +7,6 @@ This project has a monorepo architecture, and the applications are architecture 
 ## Apps
 
 - api 
-- common
 - file
 - socket
 - worker
@@ -23,7 +22,9 @@ This project has a monorepo architecture, and the applications are architecture 
 - A feature that delete expired file and old chat log every specific time.
 - Some test codes including unit and e2e
 
-## System diagram
+## System architecture
+![SYSTEM_ARCHITECTURE](./system_architecture.webp)  
+
 
 ## Before to run
 

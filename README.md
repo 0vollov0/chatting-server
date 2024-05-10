@@ -20,7 +20,8 @@ This project has a monorepo architecture, and the applications are architecture 
 - Text and file relay and storage function
 - A feature that makes cache with a chat log
 - A feature that save a chat log that has cached with out concurrency problem
-- A feature that delete expired file and old chat log every specific time.
+- A feature that delete expired file and old chat log every specific time
+- A function that save chat logs as batch
 - Some test codes including unit and e2e
 
 ## System architecture

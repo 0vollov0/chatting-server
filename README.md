@@ -25,8 +25,17 @@ This project has a monorepo architecture, and the applications are architecture 
 - Some test codes including unit and e2e
 
 ## System architecture
-![SYSTEM_ARCHITECTURE](./system_architecture.png)  
+![SYSTEM_ARCHITECTURE](./readme_assets/system_architecture.png)
 
+## Sequence diagram
+
+### 1. Send chat
+
+![SYSTEM_ARCHITECTURE](./readme_assets/sequence_send_chat_logic.webp)
+
+### 2. Load chat
+
+![SYSTEM_ARCHITECTURE](./readme_assets/sequence_load_chat_logic.webp)
 
 ## Before to run
 

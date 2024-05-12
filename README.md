@@ -31,11 +31,90 @@ This project has a monorepo architecture, and the applications are architecture 
 
 ### 1. Send chat
 
-![SYSTEM_ARCHITECTURE](./readme_assets/sequence_send_chat_logic.webp)
+```mermaid
+sequenceDiagram
+  participant front as Front
+  participant api as API
+  participant socket as Socket
+  participant file as File
+  participant redis as Redis
+  
+  autonumber
+  
+  front ->>+ api: login
+  activate front
+  api -->>- front: token
+  deactivate front
+
+  activate socket
+  front ->>+ socket: connect
+  activate front
+  alt validate token
+    socket -->> front: allow connection
+  else invalidate token
+    socket -->> front: reject connection
+  end
+  deactivate front
+  deactivate socket
+
+  front ->> socket: send chat with file
+  activate socket
+  activate front
+  activate file
+  socket ->> file: send file buffer
+  file ->> file: save file on the storage
+  file -->> socket: file url
+  deactivate file
+  socket ->> redis: save chat with file url
+  activate redis
+  redis ->> redis: save
+  deactivate redis
+  socket -->> front: chat with file url to all connection
+  deactivate front
+  deactivate socket
+```
 
 ### 2. Load chat
 
-![SYSTEM_ARCHITECTURE](./readme_assets/sequence_load_chat_logic.webp)
+```mermaid
+sequenceDiagram
+  participant front as Front
+  participant api as API
+  participant mongodb as MongoDB
+  participant file as File
+  participant redis as Redis
+  
+  autonumber
+  
+  front ->>+ api: login
+  activate front
+  api -->>- front: token
+  deactivate front
+
+  front ->> api: request chat logs
+  activate front
+  activate api
+  api ->> redis: request cached chat logs
+  activate redis
+  activate api
+  api ->> mongodb: request chat logs
+  activate mongodb
+  redis -->> api: cached chat logs
+  deactivate redis
+  mongodb -->> api: chat logs
+  deactivate mongodb
+  api ->> api: merge chat logs
+  deactivate api
+  api -->> front: chat logs with pagination
+  deactivate api
+  deactivate front
+
+  front ->>+ file: request file
+  activate front
+  file -->>- front: buffer
+  deactivate front
+
+```
 
 ## Before to run
 

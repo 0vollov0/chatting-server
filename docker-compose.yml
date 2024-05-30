@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   mongodb:
     image: mongo:7.0.10-rc0-jammy
@@ -19,11 +17,11 @@ services:
     networks:
       - chatting_server
 
-  chatting_api:
-    container_name: chatting_api
+  api:
+    container_name: api
     build:
       context: .
-      dockerfile: ./dockerfile.api
+      dockerfile: apps/api/dockerfile
     ports:
       - "8080:8080"
     depends_on:
@@ -32,11 +30,11 @@ services:
     networks:
       - chatting_server
   
-  chatting_socket:
-    container_name: chatting_socket
+  socket:
+    container_name: socket
     build:
       context: .
-      dockerfile: ./dockerfile.socket
+      dockerfile: apps/socket/dockerfile
     ports:
       - "8081:8081"
     depends_on:
@@ -45,11 +43,11 @@ services:
     networks:
       - chatting_server
   
-  chatting_file:
-    container_name: chatting_file
+  file:
+    container_name: file
     build:
       context: .
-      dockerfile: ./dockerfile.file
+      dockerfile: apps/file/dockerfile
     ports:
       - "8082:8082"
     depends_on:
@@ -57,13 +55,12 @@ services:
       - redis
     networks:
       - chatting_server
-
   
-  chatting_worker:
-    container_name: chatting_worker
+  worker:
+    container_name: worker
     build:
       context: .
-      dockerfile: ./dockerfile.worker
+      dockerfile: apps/worker/dockerfile
     ports:
       - "8083:8083"
     depends_on:
@@ -71,7 +68,6 @@ services:
       - redis
     networks:
       - chatting_server
-
 
 volumes:
   chatting_server_mongodb_data:

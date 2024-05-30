@@ -1,12 +1,12 @@
 FROM node:18.18.0
 
-WORKDIR /home/ubuntu/app
+WORKDIR /home/ubuntu/chatting-server
 
 COPY . .
 
 RUN yarn
 RUN yarn build api
 
-EXPOSE 8081
+EXPOSE 8080
 
 CMD ["node", "dist/apps/api/main"]

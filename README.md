@@ -70,7 +70,7 @@ sequenceDiagram
   deactivate front
   deactivate socket
 
-  front ->> socket: send chat with file
+  front ->> socket: send chat with file from chat-room-1
   activate socket
   activate front
   activate file
@@ -80,7 +80,11 @@ sequenceDiagram
   deactivate file
   socket ->> redis: save chat with file url
   activate redis
-  redis ->> redis: save
+  alt unlocked redis key
+    socket -->> redis: save chat at 'chat-room-1'
+  else locked redis key
+    socket -->> redis: save chat at 'temp-chat-room-1'
+  end
   deactivate redis
   socket -->> front: chat with file url to all connection
   deactivate front

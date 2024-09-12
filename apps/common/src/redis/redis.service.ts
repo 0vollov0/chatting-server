@@ -64,10 +64,11 @@ export class RedisService {
   getChats(roomId: string) {
     return new Promise<Chat[]>((resolve, reject) => {
       try {
-        this._client.lRange(`room-${roomId}`, 0, -1).then((values) => {
-          const chats: Chat[] = JSON.parse(`[${values.toString()}]`);
-          resolve(chats);
-        });
+        const cache1 = this._client.lRange(`room-${roomId}`, 0, -1);
+        const cache2 = this._client.lRange(`temp-room-${roomId}`, 0, -1);
+        const unlockedChats: Chat[] = JSON.parse(`[${cache1.toString()}]`);
+        const lockedChats: Chat[] = JSON.parse(`[${cache2.toString()}]`);
+        resolve(unlockedChats.concat(lockedChats));
       } catch (error) {
         reject(error);
       }

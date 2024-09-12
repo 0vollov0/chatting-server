@@ -70,7 +70,7 @@ sequenceDiagram
   deactivate front
   deactivate socket
 
-  front ->> socket: send chat with file from chat-room-1
+  front ->> socket: send chat with file from 'chat-room-1'
   activate socket
   activate front
   activate file
@@ -91,13 +91,41 @@ sequenceDiagram
   deactivate socket
 ```
 
-### 2. Load chat
+
+### 2. Batch job for save cached chats
+
+```mermaid
+sequenceDiagram
+  participant worker as Worker
+  participant redis as Redis
+  participant db as DB
+  
+  autonumber
+
+  worker ->> redis: generate 'lock-chat-room-1'
+  worker ->> redis: request 'chat-room-1' logs
+  redis -->> worker: 'chat-room-1' logs
+  worker ->> db: save 'chat-room-1' logs
+  activate worker
+  activate db
+  db ->> db: save logs
+  db -->> worker: response success
+  deactivate worker
+  deactivate db
+  worker ->> redis: delete 'lock-chat-room-1'
+  worker ->> redis: request 'temp-chat-room-1' logs
+  redis -->> worker: 'temp-chat-room-1' logs
+  worker ->> redis: merge 'temp-chat-room-1' and 'chat-room-1
+  
+```
+
+### 3. Load chat
 
 ```mermaid
 sequenceDiagram
   participant front as Front
   participant api as API
-  participant mongodb as MongoDB
+  participant db as DB
   participant file as File
   participant redis as Redis
   
@@ -114,12 +142,12 @@ sequenceDiagram
   api ->> redis: request cached chat logs
   activate redis
   activate api
-  api ->> mongodb: request chat logs
-  activate mongodb
+  api ->> db: request chat logs
+  activate db
   redis -->> api: cached chat logs
   deactivate redis
-  mongodb -->> api: chat logs
-  deactivate mongodb
+  db -->> api: chat logs
+  deactivate db
   api ->> api: merge chat logs
   deactivate api
   api -->> front: chat logs with pagination

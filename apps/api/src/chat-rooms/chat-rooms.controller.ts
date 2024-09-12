@@ -1,7 +1,12 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { FindChatRoomDto } from './dto/find-chat-room.dto';
 import { ChatRoomsService } from './chat-rooms.service';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { GetChatRoomsResponse } from './chat-rooms.http-response';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FindChatsDto } from './dto/find-chats.dto';
@@ -24,6 +29,9 @@ export class ChatRoomsController {
   }
 
   @Get('chats')
+  @ApiOperation({
+    summary: 'It is able to get chat logs in specific chat room.',
+  })
   @ApiResponse({
     status: 200,
     type: Chat,

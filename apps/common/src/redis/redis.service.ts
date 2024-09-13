@@ -62,10 +62,10 @@ export class RedisService {
   }
 
   getChats(roomId: string) {
-    return new Promise<Chat[]>((resolve, reject) => {
+    return new Promise<Chat[]>(async (resolve, reject) => {
       try {
-        const cache1 = this._client.lRange(`room-${roomId}`, 0, -1);
-        const cache2 = this._client.lRange(`temp-room-${roomId}`, 0, -1);
+        const cache1 = await this._client.lRange(`room-${roomId}`, 0, -1);
+        const cache2 = await this._client.lRange(`temp-room-${roomId}`, 0, -1);
         const unlockedChats: Chat[] = JSON.parse(`[${cache1.toString()}]`);
         const lockedChats: Chat[] = JSON.parse(`[${cache2.toString()}]`);
         resolve(unlockedChats.concat(lockedChats));

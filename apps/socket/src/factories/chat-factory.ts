@@ -98,6 +98,7 @@ class ChatWithBufferFactory implements AbstractChatFactory {
     });
   }
   upload(): Promise<UploadedChatFile> {
+    // replace below to gRPC instead of HTTP
     return this.axios.uploadFile({
       bufferType: this.bufferType,
       roomId: this.dto.roomId,

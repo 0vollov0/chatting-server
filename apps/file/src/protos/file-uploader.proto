@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+service FileUploaderService {
+  rpc UploadFile (UploadFileRequest) returns (UploadFileResponse);
+}
+
+message UploadFileRequest {
+  string bufferType = 1;
+  string roomId = 2;
+  string originalname = 3;
+  bytes buffer = 4;
+}
+
+message UploadFileResponse {
+  string originalname = 1;
+  string filename = 2;
+  string expireAt = 4;
+  int32 size = 3;
+}
+

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
 import * as fs from 'fs';
@@ -8,13 +8,12 @@ import { v4 as uuidv4 } from 'uuid';
 import * as moment from 'moment';
 import { RedisService } from "@common/redis/redis.service";
 import { ConfigService } from "@nestjs/config";
-import { UploadedChatFile } from "@common/schemas/chat.schema";
 
 @Injectable()
 export class GrpcService {
   constructor(
     private readonly configService: ConfigService,
-      private readonly redisService: RedisService
+    private readonly redisService: RedisService,
   ) {
     this.runServer();
   }
@@ -37,10 +36,10 @@ export class GrpcService {
       grpc.ServerCredentials.createInsecure(),
       (err, port) => {
         if (err) {
-          console.error(err);
+          Logger.error(err, this.constructor.name);
           return;
         }
-        console.log(`gRPC Server running at http://0.0.0.0:${port}`);
+        Logger.log(`Running at http://0.0.0.0:${port}`, 'gRPC Server')
       }
     )
   }
@@ -56,7 +55,7 @@ export class GrpcService {
     );
     if (!fs.existsSync(roomPath)) {
       fs.mkdirSync(roomPath);
-      console.log(`${roomPath} has been created.`);
+      Logger.log(`${roomPath} has been created.`, this.constructor.name);
     }
     const filename = `${uuidv4()}.${originalname.split('.')[1]}`;
     fs.writeFile(join(roomPath, filename), buffer, async (err) => {

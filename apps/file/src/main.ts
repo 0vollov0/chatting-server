@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { FileModule } from './file.module';
 import * as fs from 'fs';
 import { join } from 'path';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import * as express from 'express';
 import * as serveIndex from 'serve-index';
 
@@ -14,12 +14,14 @@ async function bootstrap() {
   paths.forEach((path) => {
     if (!fs.existsSync(path)) {
       fs.mkdirSync(path);
-      console.log(`${path} has been created.`);
+      Logger.log(`${path} has been created.`, 'NestApplication');
     } else {
-      console.log(`${path} is already exist.`);
+      Logger.log(`${path} is already exist.`, 'NestApplication');
     }
   });
-  const app = await NestFactory.create(FileModule);
+  const app = await NestFactory.create(FileModule, {
+    logger: ['error', 'warn', 'log']
+  });
   app.enableCors({
     origin: '*',
     credentials: true,

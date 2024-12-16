@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CreateFileDto } from './dto/create-file.dto';
 import * as fs from 'fs';
 import { join } from 'path';
@@ -23,7 +23,7 @@ export class FileService {
     );
     if (!fs.existsSync(roomPath)) {
       fs.mkdirSync(roomPath);
-      console.log(`${roomPath} has been created.`);
+      Logger.log(`${roomPath} has been created.`, this.constructor.name);
     }
 
     return new Promise<UploadedChatFile>((resolve, reject) => {

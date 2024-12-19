@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-service FileUploaderService {
+package fileUploader;
+
+service FileUploader {
   rpc UploadFile (UploadFileRequest) returns (UploadFileResponse);
 }
 
@@ -14,7 +16,6 @@ message UploadFileRequest {
 message UploadFileResponse {
   string originalname = 1;
   string filename = 2;
-  string expireAt = 4;
-  int32 size = 3;
+  string expireAt = 3;
+  int32 size = 4;
 }
-

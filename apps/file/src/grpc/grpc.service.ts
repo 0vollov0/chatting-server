@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
 import * as fs from 'fs';
@@ -10,11 +10,17 @@ import { RedisService } from "@common/redis/redis.service";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
-export class GrpcService {
+export class GrpcService implements OnModuleInit {
+  private FILE_EXPIRE_WEEK: number;
+  private IMAGE_EXPIRE_WEEK: number;
   constructor(
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
-  ) {
+  ) {}
+
+  onModuleInit() {
+    this.FILE_EXPIRE_WEEK = +this.configService.get<string>('FILE_EXPIRE_WEEK');
+    this.IMAGE_EXPIRE_WEEK = +this.configService.get<string>('IMAGE_EXPIRE_WEEK')
     this.runServer();
   }
 
@@ -28,15 +34,15 @@ export class GrpcService {
       oneofs: true,
     })
 
-    const fileUploaderProto: any = grpc.loadPackageDefinition(packageDefinition).FileUploaderService;
+    const fileUploaderProto: any = grpc.loadPackageDefinition(packageDefinition).fileUploader;
     const server = new grpc.Server();
-    server.addService(fileUploaderProto.service, { UploadFile: this.uploadFile });
+    server.addService(fileUploaderProto.FileUploader.service, { UploadFile: this.uploadFile.bind(this) });
     server.bindAsync(
       '0.0.0.0:50051',
       grpc.ServerCredentials.createInsecure(),
       (err, port) => {
         if (err) {
-          Logger.error(err, this.constructor.name);
+          Logger.error(err, 'gRPC Server');
           return;
         }
         Logger.log(`Running at http://0.0.0.0:${port}`, 'gRPC Server')
@@ -63,8 +69,8 @@ export class GrpcService {
         const expireAt = moment()
           .add(
             bufferType === 'file'
-              ? +this.configService.get<string>('FILE_EXPIRE_WEEK')
-              : +this.configService.get<string>('IMAGE_EXPIRE_WEEK'),
+              ? this.FILE_EXPIRE_WEEK
+              : this.IMAGE_EXPIRE_WEEK,
             'weeks',
           )
           .startOf('hour');
@@ -75,7 +81,7 @@ export class GrpcService {
         callback(null, {
           filename: filename,
           originalname: originalname,
-          expireAt: expireAt.toDate(),
+          expireAt: moment().toISOString(),
           size: buffer.length,
         })
       }

@@ -1,121 +1,75 @@
-import {
-  Chat,
-  ChatType,
-  UploadedChatFile,
-} from 'apps/common/src/schemas/chat.schema';
-import { SendChatDto } from '../dto/send-chat.dto';
-import { SendChatWithFileDto } from '../dto/send-chat-with-file.dto';
-import { SendChatWithImageDto } from '../dto/send-chat-with-image.dto';
-import * as moment from 'moment';
-import { Axios } from '../axios/axios';
+import { Chat, ChatType, UploadedChatFile } from "@common/schemas/chat.schema";
+import { SendChatWithFileDto } from "../dto/send-chat-with-file.dto";
+import { SendChatWithImageDto } from "../dto/send-chat-with-image.dto";
+import { SendChatDto } from "../dto/send-chat.dto";
+import { BufferType } from "@common/type";
 import mongoose from 'mongoose';
-import { BufferType } from 'apps/common/src/type';
-import { WsException } from '@nestjs/websockets';
+import * as moment from 'moment';
+import { InternalServerErrorException } from "@nestjs/common";
+import { GrpcService } from "../grpc/grpc.service";
 
-export interface AbstractChatFactory {
-  process(): Chat | Promise<Chat>;
-  upload(): Promise<UploadedChatFile>;
-}
-
-export class ChatFactory implements AbstractChatFactory {
+abstract class AbstractChat {
+  protected dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto;
+  protected upload: (bufferType: BufferType, dto: SendChatWithImageDto | SendChatWithFileDto) => Promise<UploadedChatFile>;
   constructor(dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto) {
-    switch (dto.type) {
-      case ChatType.message:
-        return new ChatOnlyMessageFactory(dto as SendChatDto);
-      case ChatType.file:
-        return new ChatWithFileFactory(dto as SendChatWithFileDto);
-      case ChatType.image:
-        return new ChatWithImageFactory(dto as SendChatWithImageDto);
-      default:
-        new WsException({
-          status: 500,
-          message: 'create chat factory object error',
-        });
-    }
-  }
-  process(): Chat | Promise<Chat> {
-    throw new WsException({
-      status: 500,
-      message: 'process chat error',
-    });
-  }
-  upload(): Promise<UploadedChatFile> {
-    throw new WsException({
-      status: 500,
-      message: 'upload chat file error',
-    });
-  }
-}
-
-class ChatOnlyMessageFactory implements AbstractChatFactory {
-  private dto: SendChatDto;
-  constructor(dto: SendChatDto) {
     this.dto = dto;
   }
-  process(): Chat | Promise<Chat> {
+}
+
+interface IChatFactory {
+  process: () => Chat | Promise<Chat>;
+  adaptUpload?: (upload: (bufferType: BufferType, dto: SendChatWithImageDto | SendChatWithFileDto) => Promise<UploadedChatFile>) => void;
+  bindUpload?: (grpcService: GrpcService) => void;
+}
+
+class ChatOnlyMessage extends AbstractChat implements IChatFactory {
+  process() {
     const chat: Chat = {
       _id: new mongoose.Types.ObjectId().toString(),
       type: this.dto.type,
-      // name: this.dto.name,
       message: this.dto.message,
       createdAt: moment().toDate(),
     };
     return chat;
   }
-  upload(): Promise<UploadedChatFile> {
-    throw new WsException({
-      status: 500,
-      message: 'upload chat file error',
-    });
-  }
 }
 
-class ChatWithBufferFactory implements AbstractChatFactory {
-  protected dto: SendChatWithImageDto | SendChatWithFileDto;
-  protected axios: Axios;
-  protected bufferType: BufferType;
-  constructor(
-    dto: SendChatWithImageDto | SendChatWithFileDto,
-    bufferType: BufferType,
-  ) {
-    this.dto = dto;
-    this.bufferType = bufferType;
-    this.axios = Axios.getInstance();
+class ChatWithBuffer extends AbstractChat implements IChatFactory {
+  private bufferType: BufferType;
+  constructor(dto: SendChatWithFileDto | SendChatWithFileDto) {
+    super(dto);
+    this.bufferType = dto.type === ChatType.image ? 'image' : 'file';
   }
-  process(): Chat | Promise<Chat> {
+  process() {
     return new Promise<Chat>((resolve, reject) => {
-      this.upload()
-        .then((uploadedChatFile) => {
-          resolve({
-            ...uploadedChatFile,
-            _id: new mongoose.Types.ObjectId().toString(),
-            type: this.dto.type,
-            message: this.dto.message,
-            createdAt: moment().toDate(),
-          });
-        })
-        .catch(reject);
+      if (!this.upload) reject(new InternalServerErrorException());
+      else {
+        this.upload(this.bufferType, this.dto as (SendChatWithFileDto | SendChatWithFileDto))
+          .then((uploadedChatFile) => {
+            resolve({
+              ...uploadedChatFile,
+              _id: new mongoose.Types.ObjectId().toString(),
+              type: this.dto.type,
+              message: this.dto.message,
+              createdAt: moment().toDate(),
+            });
+          })
+          .catch(reject);
+      }
     });
   }
-  upload(): Promise<UploadedChatFile> {
-    // replace below to gRPC instead of HTTP
-    return this.axios.uploadFile({
-      bufferType: this.bufferType,
-      roomId: this.dto.roomId,
-      buffer: this.dto.buffer,
-      originalname: this.dto.originalname,
-    });
+  adaptUpload(upload: (bufferType: BufferType, dto: SendChatWithImageDto | SendChatWithFileDto) => Promise<UploadedChatFile>) {
+    this.upload = upload;
+  }
+  bindUpload(grpcService: GrpcService) {
+    this.upload = grpcService.upload.bind(grpcService);
   }
 }
 
-class ChatWithImageFactory extends ChatWithBufferFactory {
-  constructor(dto: SendChatWithImageDto) {
-    super(dto, 'image');
-  }
-}
-
-class ChatWithFileFactory extends ChatWithBufferFactory {
-  constructor(dto: SendChatWithFileDto) {
-    super(dto, 'file');
+export class ChatFactory {
+  static of(dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto): IChatFactory {
+    const { type } = dto;
+    if (type == ChatType.message) return new ChatOnlyMessage(dto);
+    else return new ChatWithBuffer(dto as SendChatWithFileDto | SendChatWithImageDto);
   }
 }

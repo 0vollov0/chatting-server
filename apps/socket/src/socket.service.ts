@@ -3,13 +3,15 @@ import { Server, Socket } from 'socket.io';
 import { SendChatWithFileDto } from './dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from './dto/send-chat-with-image.dto';
 import { SendChatDto } from './dto/send-chat.dto';
-import { ChatFactory } from './factories/chat-factory';
 import { RedisService } from 'apps/common/src/redis/redis.service';
 import { ChatRoomsService } from 'apps/common/src/chat-rooms/chat-rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { ExitRoomDto } from './dto/exit-room.dto';
 import { WsException } from '@nestjs/websockets';
+import { GrpcService } from './grpc/grpc.service';
+import { ChatFactory } from './factories/chat-factory';
+import { ChatType } from '@common/schemas/chat.schema';
 
 @Injectable()
 export class SocketService {
@@ -17,6 +19,7 @@ export class SocketService {
   constructor(
     private readonly redisService: RedisService,
     private readonly chatRoomsService: ChatRoomsService,
+    private readonly grpcService: GrpcService,
   ) {}
 
   public set server(server: Server) {
@@ -31,7 +34,8 @@ export class SocketService {
     dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
   ) {
     try {
-      const chatFactory = new ChatFactory(dto);
+      const chatFactory = ChatFactory.of(dto);
+      if (dto.type != ChatType.message) chatFactory.bindUpload(this.grpcService);
       const chat = await chatFactory.process();
       await this.redisService.appendChat(`${dto.roomId}`, chat);
       this._server.to(dto.roomId).emit('chat', chat);

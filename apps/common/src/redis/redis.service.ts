@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from 'redis';
 import { Chat } from '../schemas/chat.schema';
@@ -21,7 +21,7 @@ export class RedisService {
       password: password,
     })
       .on('error', (err) => {
-        console.error(err);
+        Logger.error(err, this.constructor.name);
       })
       .connect()
       .then((client) => (this._client = client));

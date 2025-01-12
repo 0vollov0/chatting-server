@@ -1,0 +1,153 @@
+{
+  "aggregate": {
+    "counters": {
+      "vusers.created_by_name.Emit chat": 10,
+      "vusers.created": 10,
+      "engine.socketio.emit": 100,
+      "vusers.failed": 0,
+      "vusers.completed": 10
+    },
+    "rates": {
+      "engine.socketio.emit_rate": 13
+    },
+    "firstCounterAt": 1735742666650,
+    "firstHistogramAt": 1735742666703,
+    "lastCounterAt": 1735742675662,
+    "lastHistogramAt": 1735742675662,
+    "firstMetricAt": 1735742666650,
+    "lastMetricAt": 1735742675662,
+    "period": 1735742670000,
+    "summaries": {
+      "vusers.session_length": {
+        "min": 11.8,
+        "max": 52.5,
+        "count": 10,
+        "mean": 18.1,
+        "p50": 13.1,
+        "median": 13.1,
+        "p75": 13.9,
+        "p90": 21.1,
+        "p95": 21.1,
+        "p99": 21.1,
+        "p999": 21.1
+      }
+    },
+    "histograms": {
+      "vusers.session_length": {
+        "min": 11.8,
+        "max": 52.5,
+        "count": 10,
+        "mean": 18.1,
+        "p50": 13.1,
+        "median": 13.1,
+        "p75": 13.9,
+        "p90": 21.1,
+        "p95": 21.1,
+        "p99": 21.1,
+        "p999": 21.1
+      }
+    }
+  },
+  "intermediate": [
+    {
+      "counters": {
+        "vusers.created_by_name.Emit chat": 4,
+        "vusers.created": 4,
+        "engine.socketio.emit": 40,
+        "vusers.failed": 0,
+        "vusers.completed": 4
+      },
+      "rates": {
+        "engine.socketio.emit_rate": 14
+      },
+      "engine.socketio.emit_rate": null,
+      "firstCounterAt": 1735742666650,
+      "firstHistogramAt": 1735742666703,
+      "lastCounterAt": 1735742669661,
+      "lastHistogramAt": 1735742669661,
+      "firstMetricAt": 1735742666650,
+      "lastMetricAt": 1735742669661,
+      "period": "1735742660000",
+      "summaries": {
+        "vusers.session_length": {
+          "min": 12.2,
+          "max": 52.5,
+          "count": 4,
+          "mean": 24.5,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 21.1,
+          "p90": 21.1,
+          "p95": 21.1,
+          "p99": 21.1,
+          "p999": 21.1
+        }
+      },
+      "histograms": {
+        "vusers.session_length": {
+          "min": 12.2,
+          "max": 52.5,
+          "count": 4,
+          "mean": 24.5,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 21.1,
+          "p90": 21.1,
+          "p95": 21.1,
+          "p99": 21.1,
+          "p999": 21.1
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Emit chat": 6,
+        "vusers.created": 6,
+        "engine.socketio.emit": 60,
+        "vusers.failed": 0,
+        "vusers.completed": 6
+      },
+      "rates": {
+        "engine.socketio.emit_rate": 12
+      },
+      "engine.socketio.emit_rate": null,
+      "firstCounterAt": 1735742670649,
+      "firstHistogramAt": 1735742670663,
+      "lastCounterAt": 1735742675662,
+      "lastHistogramAt": 1735742675662,
+      "firstMetricAt": 1735742670649,
+      "lastMetricAt": 1735742675662,
+      "period": "1735742670000",
+      "summaries": {
+        "vusers.session_length": {
+          "min": 11.8,
+          "max": 17.8,
+          "count": 6,
+          "mean": 13.8,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 13.6,
+          "p90": 13.9,
+          "p95": 13.9,
+          "p99": 13.9,
+          "p999": 13.9
+        }
+      },
+      "histograms": {
+        "vusers.session_length": {
+          "min": 11.8,
+          "max": 17.8,
+          "count": 6,
+          "mean": 13.8,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 13.6,
+          "p90": 13.9,
+          "p95": 13.9,
+          "p99": 13.9,
+          "p999": 13.9
+        }
+      }
+    }
+  ]
+}

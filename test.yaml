@@ -1,0 +1,33 @@
+config:
+  target: "ws://localhost:8081"
+  phases:
+    - duration: 10 
+      arrivalRate: 1
+      maxVusers: 1
+  engines:
+   socketio-v3: {}
+
+scenarios:
+  - name: 'Emit chat'
+    engine: socketio-v3
+    flow:
+      - connect:
+          auth:
+            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzYxODg2YzY0NzgyMWMwNDQ0YmY5NWUiLCJpYXQiOjE3MzU3MjgxNTgsImV4cCI6MTczNTgxNDU1OH0.E8zAJmPcuDPPCTmOkFC6bEYGdrk4Kd80csXfy3yTFbE'
+      # - loop:
+      #     - emit:
+      #         channel: 'deprecated-chat'
+      #         data: 
+      #           message: 'message'
+      #           roomId: '6761926421916b157eea853d'
+      #           type: 0
+      #   count: 10
+      - loop:
+          - emit:
+              channel: 'chat'
+              data: 
+                message: 'message'
+                roomId: '6761926421916b157eea853d'
+                type: 0
+        count: 10
+      # - think: 1

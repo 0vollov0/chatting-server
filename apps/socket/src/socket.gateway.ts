@@ -96,6 +96,16 @@ export class SocketGateway
     return this.chattingService.handleChat(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @UseFilters(SocketExceptionFilter)
+  @SubscribeMessage('deprecated-chat')
+  deprecatedHandleChat(
+    @MessageBody(SendChatValidation)
+    dto: SendChatDto,
+  ) {
+    return this.chattingService.deprecatedHandleChat(dto);
+  }
+
   @UseGuards(UserExistAuthGuard)
   @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('create-room')

@@ -1,5 +1,10 @@
 {
   "cSpell.words": [
     "websockets"
-  ]
+  ],
+  "yaml.schemas": {
+    "https://www.artillery.io/schema.json": [
+      "file:///Users/0vollov0/Projects/chatting-server/test.yaml"
+    ]
+  }
 }

@@ -12,6 +12,9 @@ import { WsException } from '@nestjs/websockets';
 import { GrpcService } from './grpc/grpc.service';
 import { ChatFactory } from './factories/chat-factory';
 import { ChatType } from '@common/schemas/chat.schema';
+import { ChatRoom } from 'apps/common/src/schemas/chat-room.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model } from 'mongoose';
 
 @Injectable()
 export class SocketService {
@@ -20,6 +23,7 @@ export class SocketService {
     private readonly redisService: RedisService,
     private readonly chatRoomsService: ChatRoomsService,
     private readonly grpcService: GrpcService,
+    @InjectModel(ChatRoom.name) private chatRoomModel: Model<ChatRoom>,
   ) {}
 
   public set server(server: Server) {
@@ -38,6 +42,31 @@ export class SocketService {
       if (dto.type != ChatType.message) chatFactory.bindUpload(this.grpcService);
       const chat = await chatFactory.process();
       await this.redisService.appendChat(`${dto.roomId}`, chat);
+      this._server.to(dto.roomId).emit('chat', chat);
+    } catch (error) {
+      throw new WsException({
+        status: 500,
+        message: 'send chat error',
+      });
+    }
+  }
+
+  async deprecatedHandleChat(
+    dto: SendChatDto,
+  ) {
+    const chatFactory = ChatFactory.of(dto);
+    const chat = await chatFactory.process();
+    try {
+      await this.chatRoomModel.updateOne(
+        {
+          _id: new mongoose.Types.ObjectId(dto.roomId),
+        },
+        {
+          $push: {
+            chats: [chat]
+          },
+        },
+      );
       this._server.to(dto.roomId).emit('chat', chat);
     } catch (error) {
       throw new WsException({

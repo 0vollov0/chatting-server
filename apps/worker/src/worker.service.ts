@@ -23,22 +23,30 @@ export class WorkerService {
     try {
       const roomIds = await this.redisService.getChatRoomIds();
       for (const roomId of roomIds) {
-        const lockResult = await this.redisService.lockChatRoom(roomId);
-        if (lockResult !== 'OK') throw new Error(`${roomId} doesn't lock`);
-        const chats = await this.redisService.getChats(roomId);
-        await this.redisService.removeChatRoom(roomId);
-        await this.chatRoomModel.updateOne(
-          {
-            _id: new mongoose.Types.ObjectId(roomId),
-          },
-          {
-            $push: {
-              chats,
-            },
-          },
-        );
-        await this.redisService.releaseChatRoom(roomId);
-        await this.redisService.mergeChatRoom(roomId);
+        mongoose.startSession().then(async (session) => {
+          try {
+            const { ids, chats } =
+              await this.redisService.readStreamChats(roomId);
+            await this.chatRoomModel.updateOne(
+              {
+                _id: new mongoose.Types.ObjectId(roomId),
+              },
+              {
+                $push: {
+                  chats,
+                },
+              },
+              { session },
+            );
+            await this.redisService.ackStream(roomId, ids);
+            await session.commitTransaction();
+            session.endSession();
+          } catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            await this.redisService.createStreamGroup(roomId);
+          }
+        });
       }
     } catch (error) {
       console.error(error);

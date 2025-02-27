@@ -24,7 +24,19 @@ export class RedisService {
         Logger.error(err, this.constructor.name);
       })
       .connect()
-      .then((client) => (this._client = client));
+      .then((client) => {
+        this._client = client;
+        this._client.xInfoGroups('room-1').then((res) => {
+          const group = res.find((group) => group.name === 'chat_group');
+          if (!group) {
+            this._client
+              .xGroupCreate('room-1', 'chat_group', '0')
+              .then((res) => {
+                Logger.log(res, 'redis service');
+              });
+          }
+        });
+      });
   }
 
   public get client(): ReturnType<typeof createClient> {
@@ -32,29 +44,13 @@ export class RedisService {
   }
 
   async appendChat(roomId: string, chat: Chat) {
-    const isLock = await this._client.get(`lock-${roomId}`);
-    if (isLock)
-      return this._client.lPush(`temp-${roomId}`, JSON.stringify(chat));
-    else return this._client.rPush(`room-${roomId}`, JSON.stringify(chat));
+    await this._client.xAdd(roomId, '*', { chat: JSON.stringify(chat) });
   }
 
   async getChatRoomIds() {
     return (await this._client.keys('room-*')).map(
       (keys) => keys.split('room-')[1] || '',
     );
-  }
-
-  lockChatRoom(id: string) {
-    return this._client.set(`lock-${id}`, 1);
-  }
-  releaseChatRoom(id: string) {
-    return this._client.del(`lock-${id}`);
-  }
-
-  async mergeChatRoom(id: string) {
-    const chats = await this._client.lRange(`temp-${id}`, 0, -1);
-    await this._client.del(`temp-${id}`);
-    return chats.length ? this._client.lPush(`room-${id}`, chats) : 0;
   }
 
   removeChatRoom(id: string) {
@@ -64,14 +60,51 @@ export class RedisService {
   getChats(roomId: string) {
     return new Promise<Chat[]>(async (resolve, reject) => {
       try {
-        const cache1 = await this._client.lRange(`room-${roomId}`, 0, -1);
-        const cache2 = await this._client.lRange(`temp-room-${roomId}`, 0, -1);
-        const unlockedChats: Chat[] = JSON.parse(`[${cache1.toString()}]`);
-        const lockedChats: Chat[] = JSON.parse(`[${cache2.toString()}]`);
-        resolve(unlockedChats.concat(lockedChats));
+        const res = await this._client.xRead({
+          key: `room-${roomId}`,
+          id: '0',
+        });
+
+        const cachedChats = res[0].messages.map((message) =>
+          JSON.parse(message['message']['chat']),
+        );
+        resolve(cachedChats);
       } catch (error) {
         reject(error);
       }
     });
+  }
+
+  readStreamChats(roomId: string): Promise<{ ids: string[]; chats: Chat[] }> {
+    return new Promise((resolve, reject) => {
+      this._client
+        .xReadGroup(
+          'chat_group',
+          'worker-1',
+          { key: roomId, id: '>' },
+          {
+            COUNT: 1,
+          },
+        )
+        .then((res) => {
+          const chats: Chat[] = [];
+          const ids: string[] = [];
+          res[0].messages.forEach(({ id, message }) => {
+            chats.push(JSON.parse(message['chat']));
+            ids.push(id);
+          });
+          resolve({ ids, chats });
+        })
+        .catch(reject);
+    });
+  }
+
+  ackStream(roomId: string, ids: string[]) {
+    return this._client.xAck(roomId, 'chat_group', ids);
+  }
+
+  async createStreamGroup(roomId: string) {
+    await this._client.xGroupDestroy(roomId, 'chat_group');
+    await this._client.xGroupCreate(roomId, 'chat_group', '0');
   }
 }

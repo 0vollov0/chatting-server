@@ -35,7 +35,8 @@ export class SocketService {
   ) {
     try {
       const chatFactory = ChatFactory.of(dto);
-      if (dto.type != ChatType.message) chatFactory.bindUpload(this.grpcService);
+      if (dto.type != ChatType.message)
+        chatFactory.bindUpload(this.grpcService);
       const chat = await chatFactory.process();
       await this.redisService.appendChat(`${dto.roomId}`, chat);
       this._server.to(dto.roomId).emit('chat', chat);

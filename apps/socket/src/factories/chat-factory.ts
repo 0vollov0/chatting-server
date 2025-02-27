@@ -1,16 +1,19 @@
-import { Chat, ChatType, UploadedChatFile } from "@common/schemas/chat.schema";
-import { SendChatWithFileDto } from "../dto/send-chat-with-file.dto";
-import { SendChatWithImageDto } from "../dto/send-chat-with-image.dto";
-import { SendChatDto } from "../dto/send-chat.dto";
-import { BufferType } from "@common/type";
+import { Chat, ChatType, UploadedChatFile } from '@common/schemas/chat.schema';
+import { SendChatWithFileDto } from '../dto/send-chat-with-file.dto';
+import { SendChatWithImageDto } from '../dto/send-chat-with-image.dto';
+import { SendChatDto } from '../dto/send-chat.dto';
+import { BufferType } from '@common/type';
 import mongoose from 'mongoose';
 import * as moment from 'moment';
-import { InternalServerErrorException } from "@nestjs/common";
-import { GrpcService } from "../grpc/grpc.service";
+import { InternalServerErrorException } from '@nestjs/common';
+import { GrpcService } from '../grpc/grpc.service';
 
 abstract class AbstractChat {
   protected dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto;
-  protected upload: (bufferType: BufferType, dto: SendChatWithImageDto | SendChatWithFileDto) => Promise<UploadedChatFile>;
+  protected upload: (
+    bufferType: BufferType,
+    dto: SendChatWithImageDto | SendChatWithFileDto,
+  ) => Promise<UploadedChatFile>;
   constructor(dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto) {
     this.dto = dto;
   }
@@ -18,7 +21,12 @@ abstract class AbstractChat {
 
 interface IChatFactory {
   process: () => Chat | Promise<Chat>;
-  adaptUpload?: (upload: (bufferType: BufferType, dto: SendChatWithImageDto | SendChatWithFileDto) => Promise<UploadedChatFile>) => void;
+  adaptUpload?: (
+    upload: (
+      bufferType: BufferType,
+      dto: SendChatWithImageDto | SendChatWithFileDto,
+    ) => Promise<UploadedChatFile>,
+  ) => void;
   bindUpload?: (grpcService: GrpcService) => void;
 }
 
@@ -44,7 +52,10 @@ class ChatWithBuffer extends AbstractChat implements IChatFactory {
     return new Promise<Chat>((resolve, reject) => {
       if (!this.upload) reject(new InternalServerErrorException());
       else {
-        this.upload(this.bufferType, this.dto as (SendChatWithFileDto | SendChatWithFileDto))
+        this.upload(
+          this.bufferType,
+          this.dto as SendChatWithFileDto | SendChatWithFileDto,
+        )
           .then((uploadedChatFile) => {
             resolve({
               ...uploadedChatFile,
@@ -58,7 +69,12 @@ class ChatWithBuffer extends AbstractChat implements IChatFactory {
       }
     });
   }
-  adaptUpload(upload: (bufferType: BufferType, dto: SendChatWithImageDto | SendChatWithFileDto) => Promise<UploadedChatFile>) {
+  adaptUpload(
+    upload: (
+      bufferType: BufferType,
+      dto: SendChatWithImageDto | SendChatWithFileDto,
+    ) => Promise<UploadedChatFile>,
+  ) {
     this.upload = upload;
   }
   bindUpload(grpcService: GrpcService) {
@@ -67,9 +83,14 @@ class ChatWithBuffer extends AbstractChat implements IChatFactory {
 }
 
 export class ChatFactory {
-  static of(dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto): IChatFactory {
+  static of(
+    dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
+  ): IChatFactory {
     const { type } = dto;
     if (type == ChatType.message) return new ChatOnlyMessage(dto);
-    else return new ChatWithBuffer(dto as SendChatWithFileDto | SendChatWithImageDto);
+    else
+      return new ChatWithBuffer(
+        dto as SendChatWithFileDto | SendChatWithImageDto,
+      );
   }
 }

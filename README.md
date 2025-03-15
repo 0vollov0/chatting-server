@@ -62,70 +62,30 @@ B. 캐시서버 활용 구조
 
 ---
 
-**Back-End**
-
-- Nest.js(Express), Socket.io, gRPC
-
-**Database**
-
-- MongoDB
-
-**Cache & Message Broker**
-
-- Redis
-
-**Project Management**
-
-- MonoRepo, MSA
-
-**Test Tool**
-
-- Artillery
-
-**Open API**
-
-- Swagger
+| **구분**          | **기술**                  |
+|----------------------|--------------------------------|
+| **Back-End**        | Nest.js(Express), Socket.io, gRPC |
+| **Database**        | MongoDB                         |
+| **Cache & Message Broker** | Redis                          |
+| **Project Management** | MonoRepo, MSA                   |
+| **Test Tool**        | Artillery                       |
+| **Open API**        | Swagger                         |
 
 ### 주요 기능
 
 ---
 
-**사용자 등록 및 로그인**
-
-사용자 인증을 위한 강력한 등록 및 로그인 시스템을 구현하여, 사용자 데이터의 안전한 관리와 접근을 보장합니다.
-
-**JWT 토큰을 이용한 
-보안 통신**
-
-사용자 인증과 세션 관리를 위해 JWT(Json Web Token) 토큰을 활용하여, 통신 과정에서의 데이터 보안을 강화했습니다.
-
-**채팅방 관리**
-
-다양한 채팅방을 생성하고 관리할 수 있는 기능을 제공하여, 사용자 간의 원활한 상호작용을 지원합니다. 채팅방 내에서의 권한 관리와 사용자 제어 기능도 포함되어 있습니다.
-
-**텍스트 및 파일 저장**
-
-사용자가 주고받는 텍스트 메시지와 파일을 서버에 저장하여 데이터의 일관성과 무결성을 유지합니다.
-
-**채팅 로그 캐싱**
-
-Redis를 이용해 실시간 채팅 로그를 캐시화하여, 데이터베이스에 대한 부하를 줄이고, 빠른 데이터 접근을 가능하게 합니다.
-
-**동시성 문제 해결을 통한 캐시 데이터 저장**
-
-동시성 이슈를 피하고 데이터 무결성을 유지하기 위해, 캐시된 대화 로그를 안정적으로 데이터베이스에 저장하는 메커니즘을 구현했습니다.
-
-**만료된 파일 및 오래된 채팅 로그 삭제**
-
-특정 시간마다 만료된 파일과 오래된 채팅 로그를 자동으로 정리하여, 시스템의 성능을 유지하고 불필요한 리소스 낭비를 방지합니다.
-
-**채팅 로그 일괄 저장**
-
-일정 시간 동안 캐시된 채팅 로그를 일괄적으로 데이터베이스에 저장함으로써, 대규모 데이터를 효율적으로 처리하고 관리할 수 있는 기능을 제공했습니다.
-
-**테스트 코드**
-
-단위 테스트 및 e2e(End-to-End) 테스트를 포함한 일부 테스트 코드를 작성하여, 시스템의 안정성과 신뢰성을 검증하고 유지보수성을 높였습니다.
+| **구분**                |       **설명**  |
+| :---               |:---        |
+| 사용자 등록 및 로그인   | 사용자 인증을 위한 강력한 등록 및 로그인 시스템을 구현하여, 사용자 데이터의 안전한 관리와 접근을 보장합니다.     |
+| JWT 토큰을 이용한 보안 통신   | 사용자 인증과 세션 관리를 위해 JWT(Json Web Token) 토큰을 활용하여, 통신 과정에서의 데이터 보안을 강화했습니다.     |
+| 채팅방 관리   | 다양한 채팅방을 생성하고 관리할 수 있는 기능을 제공하여, 사용자 간의 원활한 상호작용을 지원합니다. 채팅방 내에서의 권한 관리와 사용자 제어 기능도 포함되어 있습니다.     |
+| 텍스트 및 파일 저장   | Redis를 이용해 실시간 채팅 로그를 캐시화하여, 데이터베이스에 대한 부하를 줄이고, 빠른 데이터 접근을 가능하게 합니다.     |
+| 채팅 로그 캐싱   | 사용자 인증을 위한 강력한 등록 및 로그인 시스템을 구현하여, 사용자 데이터의 안전한 관리와 접근을 보장합니다.     |
+| 동시성 문제 해결을 통한 캐시 데이터 저장   | 동시성 이슈를 피하고 데이터 무결성을 유지하기 위해, 캐시된 대화 로그를 안정적으로 데이터베이스에 저장하는 메커니즘을 구현했습니다.     |
+| 만료된 파일 및 오래된 채팅 로그 삭제   | 특정 시간마다 만료된 파일과 오래된 채팅 로그를 자동으로 정리하여, 시스템의 성능을 유지하고 불필요한 리소스 낭비를 방지합니다.     |
+| 채팅 로그 일괄 저장   | 일정 시간 동안 캐시된 채팅 로그를 일괄적으로 데이터베이스에 저장함으로써, 대규모 데이터를 효율적으로 처리하고 관리할 수 있는 기능을 제공했습니다.     |
+| 테스트 코드   | 단위 테스트 및 e2e(End-to-End) 테스트를 포함한 일부 테스트 코드를 작성하여, 시스템의 안정성과 신뢰성을 검증하고 유지보수성을 높였습니다.     |
 
 ### 주요 순서도
 
@@ -156,49 +116,51 @@ sequenceDiagram
   deactivate front
   deactivate socket
 
-  front ->> socket: send chat with file from 'chat-room-1'
+  front ->> socket: send chat with file from 'room'
   activate socket
   activate front
   activate file
   socket ->> file: send file buffer
-  file ->> file: save file on the storage
-  file -->> socket: file url
-  deactivate file
-  socket ->> redis: save chat with file url
-  activate redis
-  alt unlocked redis key
-    socket -->> redis: save chat at 'chat-room-1'
-  else locked redis key
-    socket -->> redis: save chat at 'temp-chat-room-1'
+  file ->> file: save a file on the storage
+  alt file save success
+    file -->> socket: file url
+    socket ->> redis: XADD chat-stream IDempotentKey chatData
+    alt save success
+      socket -->> front: chat with file URL to all connections
+    else save failed
+      socket -->> front: error saving chat
+    end
+  else file save failed
+    file -->> socket: error response
+    socket -->> front: file upload failed
   end
-  deactivate redis
-  socket -->> front: chat with file url to all connection
+  deactivate file
   deactivate front
   deactivate socket
 ```
 
+
+
 ```mermaid
 sequenceDiagram
-  participant worker as Worker
+  participant worker as Worker (Scheduler)
   participant redis as Redis
-  participant db as DB
+  participant db as Database
   
   autonumber
-
-  worker ->> redis: generate 'lock-chat-room-1'
-  worker ->> redis: request 'chat-room-1' logs
-  redis -->> worker: 'chat-room-1' logs
-  worker ->> db: save 'chat-room-1' logs
-  activate worker
-  activate db
-  db ->> db: save logs
-  db -->> worker: response success
-  deactivate worker
-  deactivate db
-  worker ->> redis: delete 'lock-chat-room-1'
-  worker ->> redis: request 'temp-chat-room-1' logs
-  redis -->> worker: 'temp-chat-room-1' logs
-  worker ->> redis: merge 'temp-chat-room-1' and 'chat-room-1
+  
+  worker ->> redis: XRANGE chat-stream (Retrieve batch messages)
+  alt Messages exist
+    worker ->> worker: Process chat messages
+    worker ->> db: Bulk Insert chat messages
+    alt DB Insert Success
+      worker ->> redis: XDEL chat-stream (Delete processed messages)
+    else DB Insert Failed
+      worker ->> redis: XACK chat-stream (Mark messages as pending)
+    end
+  else No messages
+    worker -->> worker: Wait for next scheduled execution
+  end
   
 ```
 
@@ -208,7 +170,7 @@ sequenceDiagram
   participant api as API
   participant db as DB
   participant file as File
-  participant redis as Redis
+  participant redis as Redis (XStream)
   
   autonumber
   
@@ -220,17 +182,18 @@ sequenceDiagram
   front ->> api: request chat logs
   activate front
   activate api
-  api ->> redis: request cached chat logs
+
+  api ->> redis: request recent chat logs (XREAD)
   activate redis
-  activate api
-  api ->> db: request chat logs
-  activate db
-  redis -->> api: cached chat logs
+  redis -->> api: recent chat logs
   deactivate redis
-  db -->> api: chat logs
+
+  api ->> db: request historical chat logs (pagination)
+  activate db
+  db -->> api: historical chat logs
   deactivate db
-  api ->> api: merge chat logs
-  deactivate api
+
+  api ->> api: merge XStream logs with DB logs
   api -->> front: chat logs with pagination
   deactivate api
   deactivate front
@@ -239,7 +202,6 @@ sequenceDiagram
   activate front
   file -->>- front: buffer
   deactivate front
-
 ```
 
 ## Before to run

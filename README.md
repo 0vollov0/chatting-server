@@ -161,7 +161,6 @@ sequenceDiagram
   else No messages
     worker -->> worker: Wait for next scheduled execution
   end
-  
 ```
 
 ```mermaid
@@ -170,7 +169,7 @@ sequenceDiagram
   participant api as API
   participant db as DB
   participant file as File
-  participant redis as Redis (XStream)
+  participant redis as Redis
   
   autonumber
   

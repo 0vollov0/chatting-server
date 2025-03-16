@@ -1,0 +1,22 @@
+config:
+  target: "ws://localhost:8081"
+  socketio:
+    query: 
+      accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzYxODg2YzY0NzgyMWMwNDQ0YmY5NWUiLCJpYXQiOjE3NDIwMjQ0NTYsImV4cCI6MTc0MjExMDg1Nn0.O9Kalr2SntcsNoGFLRs69zDVjAXRFCPKFaDaNylF5Yk'
+  phases:
+    - duration: 10
+      arrivalRate: 10
+      rampTo: 200
+
+scenarios:
+  - name: chatting-server test
+    engine: socketio # Enable the Socket.IO engine
+    flow:
+      - loop:
+          - emit: 
+              channel: 'chat'
+              data:
+                message: "테스트 메시지"
+                roomId: "6761927221916b157eea8545"
+                type: 0
+        count: 300

@@ -42,6 +42,7 @@ export class SocketGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
   private clients: Map<string, Socket>;
+  private count = 0;
 
   constructor(
     private readonly chattingService: SocketService,
@@ -73,6 +74,7 @@ export class SocketGateway
         client.handshake.auth._id,
       );
       rooms.forEach(({ _id }) => client.join(_id.toString()));
+      // client.join('6761927221916b157eea8545');
     } catch (error) {
       client.disconnect(true);
     }
@@ -86,8 +88,8 @@ export class SocketGateway
   @WebSocketServer()
   server: Server;
 
-  @UseGuards(JwtAuthGuard)
-  @UseFilters(SocketExceptionFilter)
+  // @UseGuards(JwtAuthGuard)
+  // @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('chat')
   handleChat(
     @MessageBody(SendChatValidation)

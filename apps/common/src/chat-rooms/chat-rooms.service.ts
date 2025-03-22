@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { UsersService } from 'apps/api/src/users/users.service';
-import { ChatRoom } from 'apps/common/src/schemas/chat-room.schema';
+import { UsersService } from '@api/users/users.service';
+import { ChatRoom } from '@common/schemas/chat-room.schema';
 import { CreateRoomDto } from 'apps/socket/src/dto/create-room.dto';
 import mongoose, { Model } from 'mongoose';
 

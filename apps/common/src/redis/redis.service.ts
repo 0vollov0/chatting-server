@@ -83,22 +83,24 @@ export class RedisService {
     return this._client.del(`room-${id}`);
   }
 
-  getChats(roomId: string) {
-    return new Promise<Chat[]>(async (resolve, reject) => {
-      try {
-        const res = await this._client.xRead({
-          key: `room-${roomId}`,
-          id: '0',
-        });
-
-        const cachedChats = res[0].messages.map((message) =>
-          JSON.parse(message['message']['chat']),
-        );
-        resolve(cachedChats);
-      } catch (error) {
-        reject(error);
+  async getChats(roomId: string): Promise<Chat[]> {
+    const client = await this.getClient();
+    
+    try {
+      const res = await client.xRead({
+        key: `room-${roomId}`,
+        id: '0',
+      });
+  
+      if (!res || res.length === 0) {
+        return []; // 데이터가 없을 경우 빈 배열 반환
       }
-    });
+  
+      return res[0].messages.map((message) => JSON.parse(message.message.chat));
+    } catch (error) {
+      Logger.error(`Failed to retrieve chats for room ${roomId}: ${error.message}`, 'RedisService');
+      throw new Error(`Failed to fetch chats: ${error.message}`);
+    }
   }
 
   // readStreamChats(roomId: string): Promise<{ ids: string[]; chats: Chat[] }> {

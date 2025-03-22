@@ -1,37 +1,44 @@
 import { PipeTransform, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { validateOrReject } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, ClassConstructor } from 'class-transformer';
 import { SendChatDto } from '../dto/send-chat.dto';
-import { ChatType } from 'apps/common/src/schemas/chat.schema';
+import { ChatType } from '@common/schemas/chat.schema';
 import { SendChatWithFileDto } from '../dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from '../dto/send-chat-with-image.dto';
 
 @Injectable()
 export class SendChatValidation implements PipeTransform {
-  async transform(
+  transform(
     input: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
   ) {
-    let instance: object;
+    return new Promise((resolve, reject) => {
+      const dtoClass = this.getDtoClass(input.type);
+      if (!dtoClass) reject(new WsException({ code: 10001, message: '지원되지 않는 채팅 유형입니다.' }));
 
-    switch (input.type) {
+      const instance = plainToInstance(dtoClass, input);
+      try {
+        validateOrReject(instance)
+          .then(() => resolve(instance))
+          .catch(() => reject(new WsException({ code: 10002, message: '유효하지 않은 요청입니다.' })));
+      } catch (error) {
+        reject(new WsException({ code: 10002, message: '유효하지 않은 요청입니다.' }));
+      }
+    })
+  }
+
+  private getDtoClass<T extends SendChatDto | SendChatWithFileDto | SendChatWithImageDto>(
+    type: ChatType,
+  ): ClassConstructor<T> | null {
+    switch (type) {
       case ChatType.message:
-        instance = plainToInstance(SendChatDto, input);
-        break;
+        return SendChatDto as ClassConstructor<T>;
       case ChatType.file:
-        instance = plainToInstance(SendChatWithFileDto, input);
-        break;
+        return SendChatWithFileDto as ClassConstructor<T>;
       case ChatType.image:
-        instance = plainToInstance(SendChatWithImageDto, input);
-        break;
+        return SendChatWithImageDto as ClassConstructor<T>;
       default:
-        throw new WsException({ code: 10001, message: 'Unknown chat type' });
+        return null;
     }
-    try {
-      await validateOrReject(instance);
-    } catch (errors) {
-      throw new WsException(errors);
-    }
-    return input;
   }
 }

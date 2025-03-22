@@ -26,9 +26,9 @@ import { ConfigService } from '@nestjs/config';
 import { TUserPayload } from 'apps/api/src/users/decorators/user.decorator';
 import * as jwt from 'jsonwebtoken';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { UsersService } from 'apps/api/src/users/users.service';
+import { UsersService } from '@api/users/users.service';
 import { UserExistAuthGuard } from './guards/user-exist-auth.guard';
-import { ChatRoomsService } from 'apps/common/src/chat-rooms/chat-rooms.service';
+import { ChatRoomsService } from '@common/chat-rooms/chat-rooms.service';
 
 @WebSocketGateway(+process.env.SOCKET_PORT || 8081, {
   cors: {
@@ -54,7 +54,7 @@ export class SocketGateway
     this.clients = new Map<string, Socket>();
   }
   afterInit(server: Server) {
-    this.chattingService.server = server;
+    this.chattingService.setServer(server);
   }
 
   async handleConnection(client: Socket) {

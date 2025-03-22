@@ -94,7 +94,8 @@
       "<rootDir>/"
     ],
     "moduleNameMapper": {
-      "@common/(.*)$": "<rootDir>/apps/common/src/$1"
+      "@common/(.*)$": "<rootDir>/apps/common/src/$1",
+      "@api/(.*)$": "<rootDir>/apps/api/src/$1"
     }
   }
 }

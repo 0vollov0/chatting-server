@@ -18,7 +18,8 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@common/*": ["apps/common/src/*"]
+      "@common/*": ["apps/common/src/*"],
+      "@api/*": ["apps/api/src/*"],
     },
   }
 }

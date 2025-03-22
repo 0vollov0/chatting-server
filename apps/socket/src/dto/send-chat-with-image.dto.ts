@@ -1,5 +1,5 @@
-import { BufferLength } from 'apps/common/src/pipes/buffer-length';
-import { MB } from 'apps/common/src/util/mb';
+import { BufferLength } from '@common/pipes/buffer-length';
+import { MB } from '@common/util/mb';
 import { Matches, MaxLength } from 'class-validator';
 import { SendChatDto } from './send-chat.dto';
 import {

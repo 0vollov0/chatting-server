@@ -14,15 +14,16 @@ export class SendChatInterceptor implements NestInterceptor {
     const dto = context.switchToWs().getData();
     const client = context.switchToWs().getClient<Socket>();
 
-    try {
-      dto.name = client.handshake.auth.name;
-    } catch (error) {
+    const userName = client.handshake.auth?.name;
+    if (!userName) {
       throw new WsException({
         code: 11111,
         message: 'There is no name in the socket.',
       });
     }
 
-    return next.handle().pipe();
+    Object.assign(dto, { name: userName });
+
+    return next.handle();
   }
 }

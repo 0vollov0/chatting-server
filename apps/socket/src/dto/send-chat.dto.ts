@@ -1,5 +1,5 @@
 import { PickType } from '@nestjs/swagger';
-import { Chat } from 'apps/common/src/schemas/chat.schema';
+import { Chat } from '@common/schemas/chat.schema';
 import { IsMongoId, Length } from 'class-validator';
 
 export class SendChatDto extends PickType(Chat, ['type'] as const) {

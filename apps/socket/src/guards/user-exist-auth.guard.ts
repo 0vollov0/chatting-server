@@ -2,7 +2,7 @@ import { CanActivate, Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { TUserPayload } from 'apps/api/src/users/decorators/user.decorator';
-import { UsersService } from 'apps/api/src/users/users.service';
+import { UsersService } from '@api/users/users.service';
 
 @Injectable()
 export class UserExistAuthGuard implements CanActivate {

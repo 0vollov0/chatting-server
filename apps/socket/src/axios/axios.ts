@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { UploadedChatFile } from 'apps/common/src/schemas/chat.schema';
-import { BufferType } from 'apps/common/src/type';
+import { UploadedChatFile } from '@common/schemas/chat.schema';
+import { BufferType } from '@common/type';
 import axios from 'axios';
 
 type UploadFileDto = {

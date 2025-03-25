@@ -7,48 +7,32 @@ import { User } from '@common/schemas/user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
 
-  create(dto: CreateUserDto) {
-    const salt = bcrypt.genSaltSync(10);
+  async create(dto: CreateUserDto) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(dto.password, salt);
+
     return this.userModel.create({
       name: dto.name,
-      password: bcrypt.hashSync(dto.password, salt),
+      password: hashedPassword,
     });
   }
 
   async validate(name: string, password: string): Promise<User | null> {
-    return new Promise((resolve, reject) => {
-      this.userModel
-        .findOne({ name })
-        .then((user) => {
-          if (!user) resolve(null);
-          else {
-            bcrypt
-              .compare(password, user.password)
-              .then(async (result) => {
-                if (result) {
-                  resolve(user);
-                } else {
-                  resolve(null);
-                }
-              })
-              .catch(reject);
-          }
-        })
-        .catch(reject);
-    });
+    const user = await this.userModel.findOne({ name });
+    if (!user) return null;
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    return isMatch ? user : null;
   }
 
-  findById(id: string) {
+  async findById(id: string): Promise<User | null> {
     return this.userModel.findById(id);
   }
 
-  find(ids: string[]) {
-    return this.userModel.find({
-      _id: {
-        $in: ids.map((id) => new mongoose.Types.ObjectId(id)),
-      },
-    });
+  async find(ids: string[]): Promise<User[]> {
+    const objectIds = ids.map((id) => new mongoose.Types.ObjectId(id));
+    return this.userModel.find({ _id: { $in: objectIds } });
   }
 }

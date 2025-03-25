@@ -12,11 +12,11 @@ describe('ChatRoomsController', () => {
 
   const mockChatRoomsService = {
     find: jest.fn().mockResolvedValue({
-      rooms: [{ id: 'room1', name: 'Test Room' }],
+      rooms: [{ id: 'a1c07b1f-2d36-4159-b474-6309469e07b4', name: 'Test Room' }],
     }),
     findChats: jest.fn().mockResolvedValue([
-      { id: 'chat1', roomId: 'room1', message: 'Hello' },
-      { id: 'chat2', roomId: 'room1', message: 'Hi' },
+      { id: 'b3f52815-14c7-4a7b-bf16-604733959306', roomId: 'room1', message: 'Hello' },
+      { id: 'acee6b7f-5ed5-442f-900b-d10d6b028147', roomId: 'room1', message: 'Hi' },
     ]),
   };
 
@@ -30,10 +30,10 @@ describe('ChatRoomsController', () => {
         },
       ],
     })
-      .overrideGuard(JwtAuthGuard) // JwtAuthGuard를 Mock 처리
+      .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: jest.fn((context: ExecutionContext) => {
-          return true; // 항상 인증된 것으로 가정
+          return true;
         }),
       })
       .compile();
@@ -46,7 +46,7 @@ describe('ChatRoomsController', () => {
     const dto: FindChatRoomDto = { page: 1, limit: 10 };
     const result = await controller.find(dto);
 
-    expect(result).toEqual({ rooms: [{ id: 'room1', name: 'Test Room' }] });
+    expect(result).toEqual({ rooms: [{ id: 'a1c07b1f-2d36-4159-b474-6309469e07b4', name: 'Test Room' }] });
     expect(chatRoomsService.find).toHaveBeenCalledWith(dto);
   });
 
@@ -55,8 +55,8 @@ describe('ChatRoomsController', () => {
     const result = await controller.findChats(dto);
 
     expect(result).toEqual([
-      { id: 'chat1', roomId: 'room1', message: 'Hello' },
-      { id: 'chat2', roomId: 'room1', message: 'Hi' },
+      { id: 'b3f52815-14c7-4a7b-bf16-604733959306', roomId: 'room1', message: 'Hello' },
+      { id: 'acee6b7f-5ed5-442f-900b-d10d6b028147', roomId: 'room1', message: 'Hi' },
     ]);
     expect(chatRoomsService.findChats).toHaveBeenCalledWith(dto);
   });

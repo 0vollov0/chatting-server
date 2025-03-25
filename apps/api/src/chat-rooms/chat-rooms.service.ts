@@ -44,10 +44,8 @@ export class ChatRoomsService {
       ]);
 
       const cacheChats = await this.redisService.getChats(roomId);
-      const filteredCacheChats = cacheChats.filter(
-        (chat) => moment(chat.createdAt).toDate() > lastCheckTime,
-      );
-
+      const filteredCacheChats = cacheChats
+        .filter((chat) => chat.createdAt > lastCheckTime);
       return [...dbChats, ...filteredCacheChats];
     } catch (error) {
       this.logger.error(`Failed to fetch chats for room ${roomId}: ${error.message}`);

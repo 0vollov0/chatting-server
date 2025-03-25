@@ -68,7 +68,7 @@ describe('SocketService', () => {
     } as unknown as Socket;
   });
 
-  it('should handle chat message', async () => {
+  it('✅ should handle chat message', async () => {
     const dto: SendChatDto = {
       roomId: 'room1',
       message: 'test message',
@@ -81,7 +81,7 @@ describe('SocketService', () => {
     expect(redisService.appendChat).toHaveBeenCalledWith('room1', 'chat');
   });
 
-  it('should create a room', async () => {
+  it('✅ should create a room', async () => {
     const chatRoom: ChatRoom = {
       _id: 'room1',
       name: 'testRoom',
@@ -96,7 +96,7 @@ describe('SocketService', () => {
     expect(client.emit).toHaveBeenCalledWith('create-room', expect.objectContaining({ _id: 'room1' }));
   });
 
-  it('should join a room', async () => {
+  it('✅ should join a room', async () => {
     const chatRoom = { _id: 'room1', name: 'testRoom', participants: [], createdAt: new Date() };
     chatRoomsService.findRoomCanJoin = jest.fn().mockResolvedValue(chatRoom);
     await service.joinRoom(client, { _id: 'room1' });
@@ -104,13 +104,13 @@ describe('SocketService', () => {
     expect(client.emit).toHaveBeenCalledWith('join-room', expect.objectContaining({ _id: 'room1' }));
   });
 
-  it('should throw exception if already joined', async () => {
+  it('❌ should throw exception if already joined', async () => {
     client.rooms.add('room1');
 
     await expect(service.joinRoom(client, { _id: 'room1' })).rejects.toThrow(WsException);
   });
 
-  it('should exit a room', async () => {
+  it('✅ should exit a room', async () => {
     chatRoomsService.exitRoom = jest.fn().mockResolvedValue(true);
     client.rooms.add('room1');
 
@@ -118,7 +118,7 @@ describe('SocketService', () => {
     expect(client.emit).toHaveBeenCalledWith('exit-room', { _id: 'room1' });
   });
 
-  it('should throw exception if exit room fails', async () => {
+  it('❌ should throw exception if exit room fails', async () => {
     chatRoomsService.exitRoom = jest.fn().mockResolvedValue(false);
 
     await expect(service.exitRoom(client, { _id: 'room1' })).rejects.toThrow(WsException);

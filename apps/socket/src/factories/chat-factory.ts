@@ -4,12 +4,11 @@ import { SendChatWithImageDto } from '../dto/send-chat-with-image.dto';
 import { SendChatDto } from '../dto/send-chat.dto';
 import { BufferType } from '@common/type';
 import mongoose from 'mongoose';
-import * as moment from 'moment';
-import { InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { GrpcService } from '../grpc/grpc.service';
 
 abstract class AbstractChat {
-  protected dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto;
+  protected readonly dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto;
   protected upload?: (
     bufferType: BufferType,
     dto: SendChatWithImageDto | SendChatWithFileDto,
@@ -35,19 +34,19 @@ interface IChatFactory {
   bindUpload?: (grpcService: GrpcService) => void;
 }
 
-class ChatOnlyMessage extends AbstractChat implements IChatFactory {
+export class ChatOnlyMessage extends AbstractChat implements IChatFactory {
   async process(): Promise<Chat> {
     return {
       _id: this.generateChatId(),
       type: this.dto.type,
       message: this.dto.message,
-      createdAt: moment().toDate(),
+      createdAt: new Date(),
     };
   }
 }
 
-class ChatWithBuffer extends AbstractChat implements IChatFactory {
-  private bufferType: BufferType;
+export class ChatWithBuffer extends AbstractChat implements IChatFactory {
+  private readonly bufferType: BufferType;
 
   constructor(dto: SendChatWithFileDto | SendChatWithImageDto) {
     super(dto);
@@ -56,7 +55,7 @@ class ChatWithBuffer extends AbstractChat implements IChatFactory {
 
   async process(): Promise<Chat> {
     if (!this.upload) {
-      throw new InternalServerErrorException('Upload function is not defined.');
+      throw new InternalServerErrorException('Upload function has not been provided.');
     }
 
     try {
@@ -70,10 +69,10 @@ class ChatWithBuffer extends AbstractChat implements IChatFactory {
         _id: this.generateChatId(),
         type: this.dto.type,
         message: this.dto.message,
-        createdAt: moment().toDate(),
+        createdAt: new Date(),
       };
-    } catch (error) {
-      throw new InternalServerErrorException('File upload failed.', error);
+    } catch {
+      throw new InternalServerErrorException('File upload failed.');
     }
   }
 
@@ -95,6 +94,10 @@ export class ChatFactory {
   static of(
     dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
   ): IChatFactory {
+    if (!Object.values(ChatType).includes(dto.type)) {
+      throw new BadRequestException(`Invalid chat type: ${dto.type}`);
+    }
+
     return dto.type === ChatType.message
       ? new ChatOnlyMessage(dto)
       : new ChatWithBuffer(dto as SendChatWithFileDto | SendChatWithImageDto);

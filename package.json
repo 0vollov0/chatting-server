@@ -2,11 +2,11 @@
   "name": "chatting-server",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "SINGYU PARK",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && mkdir -p dist/apps/protos && cp -r apps/socket/src/protos/*.proto dist/apps/protos/",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -14,6 +14,7 @@
     "start:prod": "node dist/apps/chatting-server/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
+    "test:cov": "jest --coverage",
     "test:watch": "jest --watch"
   },
   "dependencies": {
@@ -96,6 +97,7 @@
     "moduleNameMapper": {
       "@common/(.*)$": "<rootDir>/apps/common/src/$1",
       "@api/(.*)$": "<rootDir>/apps/api/src/$1"
-    }
+    },
+    "setupFilesAfterEnv": ["<rootDir>/jest.setup.ts"]
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UsersService } from '@api/users/users.service';
 import { ChatRoom } from '@common/schemas/chat-room.schema';
@@ -44,11 +44,11 @@ export class ChatRoomsService {
     });
   }
 
-  searchRoom(name: string) {
+  async searchRoom(name: string) {
     return this.chatRoomModel.findOne({ name }, { chats: 0 });
   }
 
-  searchRooms(search: string) {
+  async searchRooms(search: string) {
     return this.chatRoomModel.find(
       { name: { $regex: search, $options: 'i' } },
       { chats: 0 },

@@ -8,39 +8,6 @@ export class RedisService {
   private _client!: ReturnType<typeof createClient>;  // "!"를 붙여 TS에서 undefined 경고 방지
   private _clientReady: any;
 
-  // constructor(private readonly configService: ConfigService) {
-  //   const password =
-  //     this.configService.get<string>('ENV') === 'LOCAL'
-  //       ? undefined
-  //       : this.configService.get<string>('REDIS_PASSWORD');
-  //   const host = this.configService.get<string>('REDIS_HOST');
-  //   const port = this.configService.get<string>('REDIS_PORT');
-  //   createClient({
-  //     socket: {
-  //       port: +port,
-  //       host,
-  //     },
-  //     password: password,
-  //   })
-  //     .on('error', (err) => {
-  //       Logger.error(err, this.constructor.name);
-  //     })
-  //     .connect()
-  //     .then((client) => {
-  //       this._client = client;
-  //       this._client.xInfoGroups('room-1').then((res) => {
-  //         const group = res.find((group) => group.name === 'chat_group');
-  //         if (!group) {
-  //           this._client
-  //             .xGroupCreate('room-1', 'chat_group', '0')
-  //             .then((res) => {
-  //               Logger.log(res, 'redis service');
-  //             });
-  //         }
-  //       });
-  //     });
-  // }
-
   constructor(private readonly configService: ConfigService) {
     this._client = createClient({
       socket: {
@@ -93,7 +60,7 @@ export class RedisService {
       });
   
       if (!res || res.length === 0) {
-        return []; // 데이터가 없을 경우 빈 배열 반환
+        return [];
       }
   
       return res[0].messages.map((message) => JSON.parse(message.message.chat));
@@ -102,30 +69,6 @@ export class RedisService {
       throw new Error(`Failed to fetch chats: ${error.message}`);
     }
   }
-
-  // readStreamChats(roomId: string): Promise<{ ids: string[]; chats: Chat[] }> {
-  //   return new Promise((resolve, reject) => {
-  //     this._client
-  //       .xReadGroup(
-  //         'chat_group',
-  //         'worker-1',
-  //         { key: roomId, id: '>' },
-  //         {
-  //           COUNT: 1,
-  //         },
-  //       )
-  //       .then((res) => {
-  //         const chats: Chat[] = [];
-  //         const ids: string[] = [];
-  //         res[0].messages.forEach(({ id, message }) => {
-  //           chats.push(JSON.parse(message['chat']));
-  //           ids.push(id);
-  //         });
-  //         resolve({ ids, chats });
-  //       })
-  //       .catch(reject);
-  //   });
-  // }
 
   async readStreamChats(roomId: string): Promise<{ ids: string[]; chats: Chat[] }> {
     const client = await this.getClient();
@@ -207,5 +150,9 @@ export class RedisService {
         console.error(`🚨 Failed to check or create consumer group for ${streamKey}:`, error);
       }
     }
+  }
+
+  public quit() {
+    this._client.quit();
   }
 }

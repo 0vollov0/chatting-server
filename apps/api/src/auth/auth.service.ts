@@ -7,42 +7,35 @@ import { Token } from '@common/schemas/token.schema';
 import { Model } from 'mongoose';
 import { TUserPayload } from '../users/decorators/user.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { UserDocument } from '@common/schemas/user.schema';
+import { User, UserDocument } from '@common/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    @InjectModel(Token.name) private tokenModel: Model<Token>,
+    @InjectModel(Token.name) private readonly tokenModel: Model<Token>,
   ) {}
 
-  async join(dto: CreateUserDto): Promise<UserDocument> {
-    try {
-      const user: any = await this.usersService.create(dto);
-      delete user._doc.password;
-      return user;
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
+  async join(dto: CreateUserDto): Promise<User> {
+    const user = await this.usersService.create(dto);
+    
+    const userObject = user.toObject();
+    delete userObject.password;
+    return userObject;
   }
 
-  login(userPayload: TUserPayload) {
-    try {
-      return this.publishToken(userPayload);
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
+  async login(userPayload: TUserPayload) {
+    return this.publishToken(userPayload);
   }
 
   async refreshToken({ _id, accessToken, refreshToken }: RefreshTokenDto) {
-    const result = await this.tokenModel.deleteOne({
-      accessToken,
-      refreshToken,
-    });
+    const tokenExists = await this.tokenModel.findOne({ accessToken, refreshToken });
+    if (!tokenExists) {
+      throw new BadRequestException('Invalid refresh token');
+    }
 
-    if (!result.deletedCount) throw new BadRequestException();
-
+    await this.tokenModel.deleteOne({ accessToken, refreshToken });
     return this.publishToken({ _id });
   }
 
@@ -51,19 +44,11 @@ export class AuthService {
   }
 
   private async publishToken({ _id }: Pick<TUserPayload, '_id'>) {
-    const accessToken = this.jwtService.sign({
-      _id,
-    });
-    const refreshToken = this.jwtService.sign(
-      {
-        accessToken,
-      },
-      {
-        expiresIn: '7d',
-      },
-    );
-    const token = { accessToken, refreshToken };
-    await this.tokenModel.create(token);
-    return token;
+    const accessToken = this.jwtService.sign({ _id });
+    const refreshToken = this.jwtService.sign({ accessToken }, { expiresIn: '7d' });
+
+    await this.tokenModel.insertOne({ accessToken, refreshToken });
+
+    return { accessToken, refreshToken };
   }
 }

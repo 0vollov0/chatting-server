@@ -4,7 +4,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApiModule);
+  const app = await NestFactory.create(ApiModule, {
+    logger: ['error', 'warn',],
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

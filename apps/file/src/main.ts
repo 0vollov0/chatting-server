@@ -20,7 +20,7 @@ async function bootstrap() {
     }
   });
   const app = await NestFactory.create(FileModule, {
-    logger: ['error', 'warn', 'log'],
+    logger: ['error', 'warn',],
   });
   app.enableCors({
     origin: '*',

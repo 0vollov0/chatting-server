@@ -5,7 +5,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { Model } from 'mongoose';
-import { User, UserDocument } from '@common/schemas/user.schema';
+import { User } from '@common/schemas/user.schema';
 import { UsersModule } from '../users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
@@ -14,17 +14,20 @@ import { ConfigModule } from '@common/config/config.module';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Token, TokenSchema } from '@common/schemas/token.schema';
 import { CommonModule } from '@common/common.module';
+import { Logger } from '@nestjs/common';
 
 describe('AuthController', () => {
   let authController: AuthController;
   let userModel: Model<User>;
   let tokenModel: Model<Token>;
 
-  let testUser: UserDocument;
+  let testUser: User;
   let tokenAfterLogin: Pick<Token, 'accessToken' | 'refreshToken'>;
   let tokenAfterRefresh: Pick<Token, 'accessToken' | 'refreshToken'>;
 
   beforeAll(async () => {
+    Logger.overrideLogger([]);
+
     const moduleRef = await Test.createTestingModule({
       imports: [
         CommonModule,
@@ -54,7 +57,7 @@ describe('AuthController', () => {
     userModel = moduleRef.get<Model<User>>(getModelToken(User.name));
     tokenModel = moduleRef.get<Model<Token>>(getModelToken(Token.name));
   });
-
+  
   describe('join', () => {
     it('should return user model with out password', async () => {
       const dto: CreateUserDto = {

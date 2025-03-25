@@ -1,4 +1,4 @@
-import { UnauthorizedException, UseFilters, UseGuards } from '@nestjs/common';
+import { UnauthorizedException, UseFilters, UseGuards, Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -41,61 +41,86 @@ import { ChatRoomsService } from '@common/chat-rooms/chat-rooms.service';
 export class SocketGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
-  private clients: Map<string, Socket>;
-  private count = 0;
+  private readonly logger = new Logger(SocketGateway.name);
+  private _clients: Map<string, Socket>;
 
   constructor(
-    private readonly chattingService: SocketService,
     private readonly socketService: SocketService,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
     private readonly chatRoomsService: ChatRoomsService,
   ) {
-    this.clients = new Map<string, Socket>();
+    this._clients = new Map<string, Socket>();
   }
+
   afterInit(server: Server) {
-    this.chattingService.setServer(server);
+    this.socketService.setServer(server);
+    this.logger.log('Socket server initialized');
   }
 
   async handleConnection(client: Socket) {
     try {
-      const payload = jwt.verify(
-        client.handshake.auth.accessToken,
-        this.configService.get<string>('JWT_SECRET'),
-        {
-          ignoreExpiration: false,
-        },
-      ) as TUserPayload;
+      const accessToken = client.handshake.auth.accessToken;
+      if (!accessToken) {
+        throw new UnauthorizedException('Access token is missing');
+      }
+
+      let payload: TUserPayload;
+      try {
+        payload = jwt.verify(
+          accessToken,
+          this.configService.get<string>('JWT_SECRET'),
+          { ignoreExpiration: false },
+        ) as TUserPayload;
+      } catch (error) {
+        throw new UnauthorizedException('Invalid or expired token');
+      }
+
       const user = await this.usersService.findById(payload._id);
-      if (!user) throw new UnauthorizedException();
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
       client.handshake.auth._id = payload._id;
-      this.clients.set(client.handshake.auth._id, client);
-      const rooms = await this.chatRoomsService.findRoomsParticipated(
-        client.handshake.auth._id,
-      );
+      this._clients.set(payload._id, client);
+
+      const rooms = await this.chatRoomsService.findRoomsParticipated(payload._id);
       rooms.forEach(({ _id }) => client.join(_id.toString()));
-      // client.join('6761927221916b157eea8545');
+
+      this.logger.log(`Client connected: ${payload._id}`);
     } catch (error) {
+      this.logger.warn(`Client connection failed: ${error.message}`);
       client.disconnect(true);
     }
   }
 
   handleDisconnect(client: Socket) {
-    this.clients.delete(client.handshake.auth._id);
+    const userId = client.handshake.auth?._id;
+    if (userId) {
+      this._clients.delete(userId);
+      this.logger.log(`Client disconnected: ${userId}`);
+    } else {
+      this.logger.warn('Client disconnected without valid user ID');
+    }
     client.disconnect(true);
+  }
+
+  
+  public get clients() : Map<string, Socket> {
+    return this._clients;
   }
 
   @WebSocketServer()
   server: Server;
 
-  // @UseGuards(JwtAuthGuard)
-  // @UseFilters(SocketExceptionFilter)
+  @UseGuards(JwtAuthGuard)
+  @UseFilters(SocketExceptionFilter)
   @SubscribeMessage('chat')
   handleChat(
     @MessageBody(SendChatValidation)
     dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
   ) {
-    return this.chattingService.handleChat(dto);
+    return this.socketService.handleChat(dto);
   }
 
   @UseGuards(UserExistAuthGuard)

@@ -24,23 +24,35 @@ describe('SendChatValidation', () => {
     const input = { type: ChatType.message, message: 'Hello' };
     (validateOrReject as jest.Mock).mockResolvedValueOnce(undefined); // 유효성 검사 통과
 
-    await expect(pipe.transform(input as SendChatDto)).resolves.toBeInstanceOf(SendChatDto);
+    await expect(pipe.transform(input as SendChatDto)).resolves.toBeInstanceOf(
+      SendChatDto,
+    );
     expect(validateOrReject).toHaveBeenCalledTimes(1);
   });
 
   it('✅ Should convert to SendChatWithFileDto and pass validation when ChatType is file', async () => {
-    const input = { type: ChatType.file, fileUrl: 'https://example.com/file.pdf' };
+    const input = {
+      type: ChatType.file,
+      fileUrl: 'https://example.com/file.pdf',
+    };
     (validateOrReject as jest.Mock).mockResolvedValueOnce(undefined);
 
-    await expect(pipe.transform(input as unknown as SendChatWithFileDto)).resolves.toBeInstanceOf(SendChatWithFileDto);
+    await expect(
+      pipe.transform(input as unknown as SendChatWithFileDto),
+    ).resolves.toBeInstanceOf(SendChatWithFileDto);
     expect(validateOrReject).toHaveBeenCalledTimes(2);
   });
 
   it('✅ Should convert to SendChatWithImageDto and pass validation when ChatType is image', async () => {
-    const input = { type: ChatType.image, imageUrl: 'https://example.com/image.jpg' };
+    const input = {
+      type: ChatType.image,
+      imageUrl: 'https://example.com/image.jpg',
+    };
     (validateOrReject as jest.Mock).mockResolvedValueOnce(undefined);
 
-    await expect(pipe.transform(input as unknown as SendChatWithImageDto)).resolves.toBeInstanceOf(SendChatWithImageDto);
+    await expect(
+      pipe.transform(input as unknown as SendChatWithImageDto),
+    ).resolves.toBeInstanceOf(SendChatWithImageDto);
     expect(validateOrReject).toHaveBeenCalledTimes(3);
   });
 
@@ -48,14 +60,22 @@ describe('SendChatValidation', () => {
     const input = { type: 'unknown_type' };
 
     await expect(pipe.transform(input as any)).rejects.toThrow(WsException);
-    await expect(pipe.transform(input as any)).rejects.toThrow('지원되지 않는 채팅 유형입니다.');
+    await expect(pipe.transform(input as any)).rejects.toThrow(
+      '지원되지 않는 채팅 유형입니다.',
+    );
   });
 
   it('❌ Should throw WsException when validation fails', async () => {
     const input = { type: ChatType.message, message: '' };
-    (validateOrReject as jest.Mock).mockRejectedValueOnce(new Error('유효하지 않은 요청입니다.'));
+    (validateOrReject as jest.Mock).mockRejectedValueOnce(
+      new Error('유효하지 않은 요청입니다.'),
+    );
 
-    await expect(pipe.transform(input as SendChatDto)).rejects.toThrow(WsException);
-    await expect(pipe.transform(input as SendChatDto)).rejects.toThrow('유효하지 않은 요청입니다.');
+    await expect(pipe.transform(input as SendChatDto)).rejects.toThrow(
+      WsException,
+    );
+    await expect(pipe.transform(input as SendChatDto)).rejects.toThrow(
+      '유효하지 않은 요청입니다.',
+    );
   });
 });

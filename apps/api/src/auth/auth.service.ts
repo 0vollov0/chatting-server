@@ -19,7 +19,7 @@ export class AuthService {
 
   async join(dto: CreateUserDto): Promise<User> {
     const user = await this.usersService.create(dto);
-    
+
     const userObject = user.toObject();
     delete userObject.password;
     return userObject;
@@ -30,7 +30,10 @@ export class AuthService {
   }
 
   async refreshToken({ _id, accessToken, refreshToken }: RefreshTokenDto) {
-    const tokenExists = await this.tokenModel.findOne({ accessToken, refreshToken });
+    const tokenExists = await this.tokenModel.findOne({
+      accessToken,
+      refreshToken,
+    });
     if (!tokenExists) {
       throw new BadRequestException('Invalid refresh token');
     }
@@ -45,7 +48,10 @@ export class AuthService {
 
   private async publishToken({ _id }: Pick<TUserPayload, '_id'>) {
     const accessToken = this.jwtService.sign({ _id });
-    const refreshToken = this.jwtService.sign({ accessToken }, { expiresIn: '7d' });
+    const refreshToken = this.jwtService.sign(
+      { accessToken },
+      { expiresIn: '7d' },
+    );
 
     await this.tokenModel.insertOne({ accessToken, refreshToken });
 

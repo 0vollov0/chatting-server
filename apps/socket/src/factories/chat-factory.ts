@@ -4,11 +4,17 @@ import { SendChatWithImageDto } from '../dto/send-chat-with-image.dto';
 import { SendChatDto } from '../dto/send-chat.dto';
 import { BufferType } from '@common/type';
 import mongoose from 'mongoose';
-import { InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  BadRequestException,
+} from '@nestjs/common';
 import { GrpcService } from '../grpc/grpc.service';
 
 abstract class AbstractChat {
-  protected readonly dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto;
+  protected readonly dto:
+    | SendChatDto
+    | SendChatWithFileDto
+    | SendChatWithImageDto;
   protected upload?: (
     bufferType: BufferType,
     dto: SendChatWithImageDto | SendChatWithFileDto,
@@ -55,7 +61,9 @@ export class ChatWithBuffer extends AbstractChat implements IChatFactory {
 
   async process(): Promise<Chat> {
     if (!this.upload) {
-      throw new InternalServerErrorException('Upload function has not been provided.');
+      throw new InternalServerErrorException(
+        'Upload function has not been provided.',
+      );
     }
 
     try {

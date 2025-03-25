@@ -36,7 +36,8 @@ export class SocketService {
 
   private getClientId(client: Socket): string {
     const userId = client.handshake.auth?._id;
-    if (!userId) throw new WsException({ status: 401, message: 'Unauthorized' });
+    if (!userId)
+      throw new WsException({ status: 401, message: 'Unauthorized' });
     return userId;
   }
 
@@ -44,7 +45,9 @@ export class SocketService {
     client.emit(event, data);
   }
 
-  async handleChat(dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto) {
+  async handleChat(
+    dto: SendChatDto | SendChatWithFileDto | SendChatWithImageDto,
+  ) {
     try {
       const chatFactory = ChatFactory.of(dto);
 
@@ -76,21 +79,33 @@ export class SocketService {
         createdAt: chatRoom.createdAt,
       });
     } catch (error) {
-      throw new WsException({ status: 500, message: 'Failed to create chat room' });
+      throw new WsException({
+        status: 500,
+        message: 'Failed to create chat room',
+      });
     }
   }
 
   async joinRoom(client: Socket, dto: JoinRoomDto) {
     if (client.rooms.has(dto._id)) {
-      throw new WsException({ status: 400, message: 'You have already joined this room' });
+      throw new WsException({
+        status: 400,
+        message: 'You have already joined this room',
+      });
     }
 
     try {
       const userId = this.getClientId(client);
-      const chatRoom = await this.chatRoomsService.findRoomCanJoin(dto._id, userId);
+      const chatRoom = await this.chatRoomsService.findRoomCanJoin(
+        dto._id,
+        userId,
+      );
 
       if (!chatRoom) {
-        throw new WsException({ status: 404, message: 'Chat room not found or access denied' });
+        throw new WsException({
+          status: 404,
+          message: 'Chat room not found or access denied',
+        });
       }
 
       await client.join(dto._id);
@@ -101,7 +116,10 @@ export class SocketService {
         createdAt: chatRoom.createdAt,
       });
     } catch (error) {
-      throw new WsException({ status: 500, message: 'Failed to join chat room' });
+      throw new WsException({
+        status: 500,
+        message: 'Failed to join chat room',
+      });
     }
   }
 
@@ -111,13 +129,19 @@ export class SocketService {
       const success = await this.chatRoomsService.exitRoom(dto._id, userId);
 
       if (!success) {
-        throw new WsException({ status: 500, message: 'Failed to exit chat room' });
+        throw new WsException({
+          status: 500,
+          message: 'Failed to exit chat room',
+        });
       }
 
       client.rooms.delete(dto._id);
       this.emitToClient(client, 'exit-room', { _id: dto._id });
     } catch (error) {
-      throw new WsException({ status: 500, message: 'Failed to exit chat room' });
+      throw new WsException({
+        status: 500,
+        message: 'Failed to exit chat room',
+      });
     }
   }
 }

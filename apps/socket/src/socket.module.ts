@@ -10,13 +10,18 @@ import { ChatRoom, ChatRoomSchema } from '@common/schemas/chat-room.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
-  imports: [CommonModule, ChatRoomsModule, UsersModule, GrpcModule,
+  imports: [
+    CommonModule,
+    ChatRoomsModule,
+    UsersModule,
+    GrpcModule,
     MongooseModule.forFeature([
-    {
-      name: ChatRoom.name,
-      schema: ChatRoomSchema,
-    },
-  ])],
+      {
+        name: ChatRoom.name,
+        schema: ChatRoomSchema,
+      },
+    ]),
+  ],
   providers: [SocketService, SocketGateway, GrpcService],
 })
 export class SocketModule {}

@@ -7,7 +7,9 @@ import { User } from '@common/schemas/user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+  ) {}
 
   async create(dto: CreateUserDto) {
     const salt = await bcrypt.genSalt(10);

@@ -12,11 +12,21 @@ describe('ChatRoomsController', () => {
 
   const mockChatRoomsService = {
     find: jest.fn().mockResolvedValue({
-      rooms: [{ id: 'a1c07b1f-2d36-4159-b474-6309469e07b4', name: 'Test Room' }],
+      rooms: [
+        { id: 'a1c07b1f-2d36-4159-b474-6309469e07b4', name: 'Test Room' },
+      ],
     }),
     findChats: jest.fn().mockResolvedValue([
-      { id: 'b3f52815-14c7-4a7b-bf16-604733959306', roomId: 'room1', message: 'Hello' },
-      { id: 'acee6b7f-5ed5-442f-900b-d10d6b028147', roomId: 'room1', message: 'Hi' },
+      {
+        id: 'b3f52815-14c7-4a7b-bf16-604733959306',
+        roomId: 'room1',
+        message: 'Hello',
+      },
+      {
+        id: 'acee6b7f-5ed5-442f-900b-d10d6b028147',
+        roomId: 'room1',
+        message: 'Hi',
+      },
     ]),
   };
 
@@ -46,7 +56,11 @@ describe('ChatRoomsController', () => {
     const dto: FindChatRoomDto = { page: 1, limit: 10 };
     const result = await controller.find(dto);
 
-    expect(result).toEqual({ rooms: [{ id: 'a1c07b1f-2d36-4159-b474-6309469e07b4', name: 'Test Room' }] });
+    expect(result).toEqual({
+      rooms: [
+        { id: 'a1c07b1f-2d36-4159-b474-6309469e07b4', name: 'Test Room' },
+      ],
+    });
     expect(chatRoomsService.find).toHaveBeenCalledWith(dto);
   });
 
@@ -55,8 +69,16 @@ describe('ChatRoomsController', () => {
     const result = await controller.findChats(dto);
 
     expect(result).toEqual([
-      { id: 'b3f52815-14c7-4a7b-bf16-604733959306', roomId: 'room1', message: 'Hello' },
-      { id: 'acee6b7f-5ed5-442f-900b-d10d6b028147', roomId: 'room1', message: 'Hi' },
+      {
+        id: 'b3f52815-14c7-4a7b-bf16-604733959306',
+        roomId: 'room1',
+        message: 'Hello',
+      },
+      {
+        id: 'acee6b7f-5ed5-442f-900b-d10d6b028147',
+        roomId: 'room1',
+        message: 'Hi',
+      },
     ]);
     expect(chatRoomsService.findChats).toHaveBeenCalledWith(dto);
   });
@@ -70,9 +92,11 @@ describe('ChatRoomsController', () => {
   });
 
   it('❌ findChats() should throw an error if service fails', async () => {
-    mockChatRoomsService.findChats.mockRejectedValueOnce(new Error('Chat Fetch Error'));
+    mockChatRoomsService.findChats.mockRejectedValueOnce(
+      new Error('Chat Fetch Error'),
+    );
 
-    const dto: FindChatsDto = { roomId: 'room1', lastCheckTime: new Date()};
+    const dto: FindChatsDto = { roomId: 'room1', lastCheckTime: new Date() };
 
     await expect(controller.findChats(dto)).rejects.toThrow('Chat Fetch Error');
   });

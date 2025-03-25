@@ -24,7 +24,12 @@ describe('FileService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         FileService,
-        { provide: ConfigService, useValue: { get: jest.fn((key) => (key === 'FILE_EXPIRE_WEEK' ? '4' : '2')) } },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key) => (key === 'FILE_EXPIRE_WEEK' ? '4' : '2')),
+          },
+        },
         { provide: RedisService, useValue: { client: { rPush: jest.fn() } } },
       ],
     }).compile();
@@ -78,29 +83,39 @@ describe('FileService', () => {
 
     expect(fs.mkdirSync).toHaveBeenCalledWith(
       join(__dirname, '../../..', 'bucket', 'file', 'room123'),
-      { recursive: true }
+      { recursive: true },
     );
   });
 
   it('❌ Should throw BadRequestException if missing required fields', async () => {
     const invalidDto = { ...mockFileDto, buffer: null };
 
-    await expect(service.createFile(invalidDto as any)).rejects.toThrow(BadRequestException);
+    await expect(service.createFile(invalidDto as any)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('❌ Should throw BadRequestException if file write fails', async () => {
-    (fs.promises.writeFile as jest.Mock).mockRejectedValue(new Error('File write failed'));
+    (fs.promises.writeFile as jest.Mock).mockRejectedValue(
+      new Error('File write failed'),
+    );
 
-    await expect(service.createFile(mockFileDto)).rejects.toThrow(BadRequestException);
+    await expect(service.createFile(mockFileDto)).rejects.toThrow(
+      BadRequestException,
+    );
     expect(fs.promises.writeFile).toHaveBeenCalled();
   });
 
   it('❌ Should throw BadRequestException if Redis operation fails', async () => {
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.promises.writeFile as jest.Mock).mockResolvedValue(undefined);
-    (redisService.client.rPush as jest.Mock).mockRejectedValue(new Error('Redis error'));
+    (redisService.client.rPush as jest.Mock).mockRejectedValue(
+      new Error('Redis error'),
+    );
 
-    await expect(service.createFile(mockFileDto)).rejects.toThrow(BadRequestException);
+    await expect(service.createFile(mockFileDto)).rejects.toThrow(
+      BadRequestException,
+    );
     expect(redisService.client.rPush).toHaveBeenCalled();
   });
 });

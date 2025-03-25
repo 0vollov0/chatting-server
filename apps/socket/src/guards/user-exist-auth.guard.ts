@@ -1,4 +1,9 @@
-import { CanActivate, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  CanActivate,
+  Injectable,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { TUserPayload } from 'apps/api/src/users/decorators/user.decorator';
@@ -25,7 +30,9 @@ export class UserExistAuthGuard implements CanActivate {
       const user = await this.usersService.findById(payload._id);
 
       if (!user) {
-        this.logger.warn(`Unauthorized access attempt: user ${payload._id} not found`);
+        this.logger.warn(
+          `Unauthorized access attempt: user ${payload._id} not found`,
+        );
         return false;
       }
 
@@ -42,10 +49,8 @@ export class UserExistAuthGuard implements CanActivate {
   }
 
   private decodeToken(token: string): TUserPayload {
-    return jwt.verify(
-      token,
-      this.configService.get<string>('JWT_SECRET'),
-      { ignoreExpiration: false },
-    ) as TUserPayload;
+    return jwt.verify(token, this.configService.get<string>('JWT_SECRET'), {
+      ignoreExpiration: false,
+    }) as TUserPayload;
   }
 }

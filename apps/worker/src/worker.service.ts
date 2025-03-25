@@ -25,9 +25,10 @@ export class WorkerService {
 
         session.startTransaction();
         console.log('Transaction started');
-        
+
         try {
-          const { ids, chats } = await this.redisService.readStreamChats(roomId);
+          const { ids, chats } =
+            await this.redisService.readStreamChats(roomId);
           await this.chatRoomModel.updateOne(
             { _id: new mongoose.Types.ObjectId(roomId) },
             { $push: { chats } },
@@ -45,8 +46,6 @@ export class WorkerService {
         }
       }
     } catch (error) {
-      console.log('error');
-      
       console.error(`Error in saveChat cron job:`, error);
     }
   }
@@ -73,60 +72,6 @@ export class WorkerService {
       console.error(`Error in removeExpiredFiles cron job:`, error);
     }
   }
-
-  // @Cron(CronExpression.EVERY_SECOND)
-  // async saveChat() {
-  //   try {
-  //     const roomIds = await this.redisService.getChatRoomIds();
-  //     for (const roomId of roomIds) {
-  //       mongoose.startSession().then(async (session) => {
-  //         try {
-  //           const { ids, chats } =
-  //             await this.redisService.readStreamChats(roomId);
-  //           console.log(ids, chats);
-            
-  //           await this.chatRoomModel.updateOne(
-  //             {
-  //               _id: new mongoose.Types.ObjectId(roomId),
-  //             },
-  //             {
-  //               $push: {
-  //                 chats,
-  //               },
-  //             },
-  //             { session },
-  //           );
-  //           await this.redisService.ackStream(roomId, ids);
-  //           await session.commitTransaction();
-  //           session.endSession();
-  //         } catch (error) {
-  //           await session.abortTransaction();
-  //           session.endSession();
-  //           await this.redisService.createStreamGroup(roomId);
-  //         }
-  //       });
-        
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
-
-  // @Cron(CronExpression.EVERY_HOUR)
-  // removeExpiredFiles() {
-  //   const now = moment();
-  //   this.redisService.client.keys('expire-*').then((keys) => {
-  //     keys.forEach((key) => {
-  //       if (now.isAfter(moment(key.slice(7)))) {
-  //         this.redisService.client.lRange(key, 0, -1).then((paths) => {
-  //           paths.forEach((path) => {
-  //             fs.rmSync(join(__dirname, '../../..', 'bucket', path));
-  //           });
-  //         });
-  //       }
-  //     });
-  //   });
-  // }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)
   removeOldChats() {

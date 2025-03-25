@@ -1,4 +1,9 @@
-import { UnauthorizedException, UseFilters, UseGuards, Logger } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  UseFilters,
+  UseGuards,
+  Logger,
+} from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -84,7 +89,9 @@ export class SocketGateway
       client.handshake.auth._id = payload._id;
       this._clients.set(payload._id, client);
 
-      const rooms = await this.chatRoomsService.findRoomsParticipated(payload._id);
+      const rooms = await this.chatRoomsService.findRoomsParticipated(
+        payload._id,
+      );
       rooms.forEach(({ _id }) => client.join(_id.toString()));
 
       this.logger.log(`Client connected: ${payload._id}`);
@@ -105,8 +112,7 @@ export class SocketGateway
     client.disconnect(true);
   }
 
-  
-  public get clients() : Map<string, Socket> {
+  public get clients(): Map<string, Socket> {
     return this._clients;
   }
 

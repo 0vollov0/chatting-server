@@ -18,7 +18,13 @@ export class FileService {
 
   async createFile(dto: CreateFileDto): Promise<UploadedChatFile> {
     try {
-      const roomPath = join(__dirname, '../../..', 'bucket', dto.bufferType, dto.roomId);
+      const roomPath = join(
+        __dirname,
+        '../../..',
+        'bucket',
+        dto.bufferType,
+        dto.roomId,
+      );
 
       if (!fs.existsSync(roomPath)) {
         fs.mkdirSync(roomPath, { recursive: true });
@@ -29,9 +35,10 @@ export class FileService {
 
       await fs.promises.writeFile(filePath, dto.buffer);
 
-      const expireWeeks = dto.bufferType === 'file'
-        ? +this.configService.get<string>('FILE_EXPIRE_WEEK', '4')
-        : +this.configService.get<string>('IMAGE_EXPIRE_WEEK', '2');
+      const expireWeeks =
+        dto.bufferType === 'file'
+          ? +this.configService.get<string>('FILE_EXPIRE_WEEK', '4')
+          : +this.configService.get<string>('IMAGE_EXPIRE_WEEK', '2');
 
       if (isNaN(expireWeeks)) {
         throw new Error('Invalid expire week configuration.');
@@ -46,7 +53,9 @@ export class FileService {
         );
       } catch (redisError) {
         this.logger.error(`Redis operation failed: ${redisError.message}`);
-        throw new BadRequestException('Failed to store file expiration data in Redis.');
+        throw new BadRequestException(
+          'Failed to store file expiration data in Redis.',
+        );
       }
 
       this.logger.log(`File successfully stored: ${dto.filename}`);
@@ -57,7 +66,6 @@ export class FileService {
         size: dto.buffer.length,
         expireAt: expireAt.toDate(),
       };
-      
     } catch (error) {
       this.logger.error(`File storage failed: ${error.message}`);
       throw new BadRequestException(error.message || 'File write failed');

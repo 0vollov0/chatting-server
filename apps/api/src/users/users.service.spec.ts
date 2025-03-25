@@ -41,7 +41,9 @@ describe('UsersService', () => {
       const dto = { name: 'testUser', password: 'password123' };
       const result = await service.create(dto);
 
-      expect(userModel.create).toHaveBeenCalledWith(expect.objectContaining({ name: dto.name }));
+      expect(userModel.create).toHaveBeenCalledWith(
+        expect.objectContaining({ name: dto.name }),
+      );
       expect(result).toHaveProperty('_id');
       expect(result).toHaveProperty('password');
       expect(bcrypt.compareSync(dto.password, result.password)).toBeTruthy();
@@ -72,7 +74,9 @@ describe('UsersService', () => {
 
       const result = await service.validate('nonexistentUser', 'password123');
 
-      expect(userModel.findOne).toHaveBeenCalledWith({ name: 'nonexistentUser' });
+      expect(userModel.findOne).toHaveBeenCalledWith({
+        name: 'nonexistentUser',
+      });
       expect(result).toBeNull();
     });
   });
@@ -88,7 +92,9 @@ describe('UsersService', () => {
     it('✅ Should return null if user does not exist', async () => {
       userModel.findById = jest.fn().mockResolvedValue(null);
 
-      const result = await service.findById(new mongoose.Types.ObjectId().toHexString());
+      const result = await service.findById(
+        new mongoose.Types.ObjectId().toHexString(),
+      );
 
       expect(result).toBeNull();
     });
@@ -96,7 +102,10 @@ describe('UsersService', () => {
 
   describe('find()', () => {
     it('✅ Should return a list of users for given IDs', async () => {
-      const userIds = [mockUser._id, new mongoose.Types.ObjectId().toHexString()];
+      const userIds = [
+        mockUser._id,
+        new mongoose.Types.ObjectId().toHexString(),
+      ];
       const result = await service.find(userIds);
 
       expect(userModel.find).toHaveBeenCalledWith({

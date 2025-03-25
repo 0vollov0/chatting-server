@@ -70,9 +70,9 @@ describe('AuthService', () => {
       return {
         _id: '6603f9bcb2d5a5f8c8a6f2e3',
         name: 'testUser',
-        password: 'hashedPassword'
-      }
-    }
+        password: 'hashedPassword',
+      };
+    },
   };
 
   it('✅ Should register a new user and return user without password', async () => {
@@ -90,28 +90,36 @@ describe('AuthService', () => {
   });
 
   it('❌ Should throw error if user registration fails', async () => {
-    jest.spyOn(usersService, 'create').mockRejectedValue(new BadRequestException('User creation failed'));
+    jest
+      .spyOn(usersService, 'create')
+      .mockRejectedValue(new BadRequestException('User creation failed'));
 
-    await expect(authService.join({ name: 'invalidUser', password: 'weak' }))
-      .rejects.toThrow(BadRequestException);
+    await expect(
+      authService.join({ name: 'invalidUser', password: 'weak' }),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('✅ Should log in and return tokens', async () => {
     const userPayload: TUserPayload = {
       _id: mockUser._id,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     const result = await authService.login(userPayload);
 
-    expect(result).toEqual({ accessToken: 'mockAccessToken', refreshToken: 'mockAccessToken' });
+    expect(result).toEqual({
+      accessToken: 'mockAccessToken',
+      refreshToken: 'mockAccessToken',
+    });
     expect(jwtService.sign).toHaveBeenCalledTimes(2);
   });
 
   it('✅ Should refresh token successfully', async () => {
     jest.spyOn(tokenModel, 'findOne').mockResolvedValue(true);
-    jest.spyOn(tokenModel, 'deleteOne').mockResolvedValue({ deletedCount: 1 } as any);
+    jest
+      .spyOn(tokenModel, 'deleteOne')
+      .mockResolvedValue({ deletedCount: 1 } as any);
 
     const refreshTokenDto: RefreshTokenDto = {
       _id: mockUser._id,
@@ -121,7 +129,10 @@ describe('AuthService', () => {
 
     const result = await authService.refreshToken(refreshTokenDto);
 
-    expect(result).toEqual({ accessToken: 'mockAccessToken', refreshToken: 'mockAccessToken' });
+    expect(result).toEqual({
+      accessToken: 'mockAccessToken',
+      refreshToken: 'mockAccessToken',
+    });
     expect(tokenModel.deleteOne).toHaveBeenCalledWith({
       accessToken: 'oldAccessToken',
       refreshToken: 'validRefreshToken',
@@ -131,11 +142,13 @@ describe('AuthService', () => {
   it('❌ Should throw error when refresh token is invalid', async () => {
     jest.spyOn(tokenModel, 'findOne').mockResolvedValue(null);
 
-    await expect(authService.refreshToken({
-      _id: mockUser._id,
-      accessToken: 'oldAccessToken',
-      refreshToken: 'invalidRefreshToken',
-    })).rejects.toThrow(BadRequestException);
+    await expect(
+      authService.refreshToken({
+        _id: mockUser._id,
+        accessToken: 'oldAccessToken',
+        refreshToken: 'invalidRefreshToken',
+      }),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('✅ Should validate user with correct credentials', async () => {
@@ -144,7 +157,10 @@ describe('AuthService', () => {
     const result = await authService.validateUser('testUser', 'Secure@1234');
 
     expect(result).toEqual(mockUser);
-    expect(usersService.validate).toHaveBeenCalledWith('testUser', 'Secure@1234');
+    expect(usersService.validate).toHaveBeenCalledWith(
+      'testUser',
+      'Secure@1234',
+    );
   });
 
   it('✅ Should return null if user validation fails', async () => {
@@ -160,7 +176,10 @@ describe('AuthService', () => {
 
     const result = await authService['publishToken'](userPayload);
 
-    expect(result).toEqual({ accessToken: 'mockAccessToken', refreshToken: 'mockAccessToken' });
+    expect(result).toEqual({
+      accessToken: 'mockAccessToken',
+      refreshToken: 'mockAccessToken',
+    });
     expect(jwtService.sign).toHaveBeenCalledTimes(2);
     expect(tokenModel.insertOne).toHaveBeenCalledWith({
       accessToken: 'mockAccessToken',

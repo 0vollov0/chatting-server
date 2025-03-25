@@ -3,7 +3,10 @@ import { Chat, ChatType, UploadedChatFile } from '@common/schemas/chat.schema';
 import { SendChatDto } from '../dto/send-chat.dto';
 import { SendChatWithFileDto } from '../dto/send-chat-with-file.dto';
 import { SendChatWithImageDto } from '../dto/send-chat-with-image.dto';
-import { InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  BadRequestException,
+} from '@nestjs/common';
 import { GrpcService } from '../grpc/grpc.service';
 
 describe('ChatFactory', () => {
@@ -12,7 +15,7 @@ describe('ChatFactory', () => {
       const dto: SendChatDto = {
         type: ChatType.message,
         message: 'Hello',
-        roomId: '6603f9bcb2d5a5f8c8a6f2e3'
+        roomId: '6603f9bcb2d5a5f8c8a6f2e3',
       };
       const chat = ChatFactory.of(dto);
       expect(chat).toBeInstanceOf(ChatOnlyMessage);
@@ -20,10 +23,11 @@ describe('ChatFactory', () => {
 
     it('✅ Should return ChatWithBuffer instance for file message', () => {
       const dto: SendChatWithFileDto = {
-        type: ChatType.file, message: 'File message',
+        type: ChatType.file,
+        message: 'File message',
         originalname: 'example.pdf',
         buffer: Buffer.from('pdf file'),
-        roomId: '6603f9bcb2d5a5f8c8a6f2e3'
+        roomId: '6603f9bcb2d5a5f8c8a6f2e3',
       };
       const chat = ChatFactory.of(dto);
       expect(chat).toBeInstanceOf(ChatWithBuffer);
@@ -35,7 +39,7 @@ describe('ChatFactory', () => {
         message: 'image message',
         originalname: 'example.jpg',
         buffer: Buffer.from('image file'),
-        roomId: '6603f9bcb2d5a5f8c8a6f2e3'
+        roomId: '6603f9bcb2d5a5f8c8a6f2e3',
       };
       const chat = ChatFactory.of(dto);
       expect(chat).toBeInstanceOf(ChatWithBuffer);
@@ -53,7 +57,7 @@ describe('ChatOnlyMessage', () => {
     const dto: SendChatDto = {
       type: ChatType.message,
       message: 'Hello',
-      roomId: '6603f9bcb2d5a5f8c8a6f2e3'
+      roomId: '6603f9bcb2d5a5f8c8a6f2e3',
     };
     const chat = new ChatOnlyMessage(dto);
     const result = await chat.process();
@@ -73,17 +77,25 @@ describe('ChatWithBuffer', () => {
 
   beforeEach(() => {
     uploadMock = jest.fn();
-    grpcServiceMock = { upload: jest.fn() } as unknown as jest.Mocked<GrpcService>;
+    grpcServiceMock = {
+      upload: jest.fn(),
+    } as unknown as jest.Mocked<GrpcService>;
   });
 
   it('✅ Should process chat with file upload', async () => {
     const dto: SendChatWithFileDto = {
-      type: ChatType.file, message: 'File message',
+      type: ChatType.file,
+      message: 'File message',
       originalname: 'example.pdf',
       buffer: Buffer.from('pdf file'),
-      roomId: '6603f9bcb2d5a5f8c8a6f2e3'
+      roomId: '6603f9bcb2d5a5f8c8a6f2e3',
     };
-    const uploadedFile: UploadedChatFile = { originalname: 'example.pdf', filename: 'example123.pdf', size: 12345, expireAt: new Date() };
+    const uploadedFile: UploadedChatFile = {
+      originalname: 'example.pdf',
+      filename: 'example123.pdf',
+      size: 12345,
+      expireAt: new Date(),
+    };
 
     uploadMock.mockResolvedValueOnce(uploadedFile);
 
@@ -108,9 +120,14 @@ describe('ChatWithBuffer', () => {
       message: 'image message',
       originalname: 'example.jpg',
       buffer: Buffer.from('image file'),
-      roomId: '6603f9bcb2d5a5f8c8a6f2e3'
+      roomId: '6603f9bcb2d5a5f8c8a6f2e3',
     };
-    const uploadedFile: UploadedChatFile = { originalname: 'example.jpg', filename: 'example123.jpg', size: 54321, expireAt: new Date() };
+    const uploadedFile: UploadedChatFile = {
+      originalname: 'example.jpg',
+      filename: 'example123.jpg',
+      size: 54321,
+      expireAt: new Date(),
+    };
 
     uploadMock.mockResolvedValueOnce(uploadedFile);
 
@@ -131,10 +148,11 @@ describe('ChatWithBuffer', () => {
 
   it('❌ Should throw InternalServerErrorException if upload function is not defined', async () => {
     const dto: SendChatWithFileDto = {
-      type: ChatType.file, message: 'File message',
+      type: ChatType.file,
+      message: 'File message',
       originalname: 'example.pdf',
       buffer: Buffer.from('pdf file'),
-      roomId: '6603f9bcb2d5a5f8c8a6f2e3'
+      roomId: '6603f9bcb2d5a5f8c8a6f2e3',
     };
     const chat = new ChatWithBuffer(dto);
 
@@ -147,7 +165,7 @@ describe('ChatWithBuffer', () => {
       message: 'image message',
       originalname: 'example.jpg',
       buffer: Buffer.from('image file'),
-      roomId: '6603f9bcb2d5a5f8c8a6f2e3'
+      roomId: '6603f9bcb2d5a5f8c8a6f2e3',
     };
 
     uploadMock.mockRejectedValueOnce(new Error('Upload failed'));
@@ -160,12 +178,18 @@ describe('ChatWithBuffer', () => {
 
   it('✅ Should bind upload function from GrpcService', async () => {
     const dto: SendChatWithFileDto = {
-      type: ChatType.file, message: 'File message',
+      type: ChatType.file,
+      message: 'File message',
       originalname: 'example.pdf',
       buffer: Buffer.from('pdf file'),
-      roomId: '6603f9bcb2d5a5f8c8a6f2e3'
+      roomId: '6603f9bcb2d5a5f8c8a6f2e3',
     };
-    const uploadedFile: UploadedChatFile = { originalname: 'example.pdf', filename: 'example123.pdf', size: 12345, expireAt: new Date() };
+    const uploadedFile: UploadedChatFile = {
+      originalname: 'example.pdf',
+      filename: 'example123.pdf',
+      size: 12345,
+      expireAt: new Date(),
+    };
 
     grpcServiceMock.upload.mockResolvedValueOnce(uploadedFile);
 

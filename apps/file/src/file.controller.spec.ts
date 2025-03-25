@@ -53,9 +53,13 @@ describe('FileController', () => {
   });
 
   it('❌ Should throw BadRequestException if file upload fails', async () => {
-    (fileService.createFile as jest.Mock).mockRejectedValue(new BadRequestException('File upload failed'));
+    (fileService.createFile as jest.Mock).mockRejectedValue(
+      new BadRequestException('File upload failed'),
+    );
 
-    await expect(controller.createFile(mockFileDto)).rejects.toThrow(BadRequestException);
+    await expect(controller.createFile(mockFileDto)).rejects.toThrow(
+      BadRequestException,
+    );
     expect(fileService.createFile).toHaveBeenCalledWith(mockFileDto);
   });
 
@@ -68,17 +72,19 @@ describe('FileController', () => {
             buffer: {
               data: new Uint32Array(),
               type: 'Buffer',
-            }
+            },
           },
         }),
       }),
     } as unknown as ExecutionContext;
-  
+
     const callHandler: CallHandler = {
       handle: jest.fn(() => of(null)),
     };
-  
+
     const interceptor = new UploadInterceptor();
-    expect(await interceptor.intercept(executionContext, callHandler)).toBeDefined();
+    expect(
+      await interceptor.intercept(executionContext, callHandler),
+    ).toBeDefined();
   });
 });

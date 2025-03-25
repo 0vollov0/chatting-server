@@ -32,10 +32,10 @@ describe('SocketService', () => {
         },
         {
           provide: ChatRoomsService,
-          useValue: { 
+          useValue: {
             createRoom: jest.fn(),
             findRoomCanJoin: jest.fn(),
-            exitRoom: jest.fn()
+            exitRoom: jest.fn(),
           },
         },
         {
@@ -62,9 +62,9 @@ describe('SocketService', () => {
       rooms: new Set(),
       handshake: {
         auth: {
-          _id: 'client'
-        }
-      }
+          _id: 'client',
+        },
+      },
     } as unknown as Socket;
   });
 
@@ -72,7 +72,7 @@ describe('SocketService', () => {
     const dto: SendChatDto = {
       roomId: 'room1',
       message: 'test message',
-      type: ChatType.message
+      type: ChatType.message,
     };
     const chatInstance = { process: jest.fn().mockResolvedValue('chat') };
     (ChatFactory.of as jest.Mock).mockReturnValue(chatInstance);
@@ -87,27 +87,40 @@ describe('SocketService', () => {
       name: 'testRoom',
       participants: [],
       createdAt: new Date(),
-      chats: []
+      chats: [],
     };
     chatRoomsService.createRoom = jest.fn().mockResolvedValue(chatRoom);
 
     await service.createRoom(client, { name: 'testRoom', participantIds: [] });
     expect(client.join).toHaveBeenCalledWith('room1');
-    expect(client.emit).toHaveBeenCalledWith('create-room', expect.objectContaining({ _id: 'room1' }));
+    expect(client.emit).toHaveBeenCalledWith(
+      'create-room',
+      expect.objectContaining({ _id: 'room1' }),
+    );
   });
 
   it('✅ should join a room', async () => {
-    const chatRoom = { _id: 'room1', name: 'testRoom', participants: [], createdAt: new Date() };
+    const chatRoom = {
+      _id: 'room1',
+      name: 'testRoom',
+      participants: [],
+      createdAt: new Date(),
+    };
     chatRoomsService.findRoomCanJoin = jest.fn().mockResolvedValue(chatRoom);
     await service.joinRoom(client, { _id: 'room1' });
     expect(client.join).toHaveBeenCalledWith('room1');
-    expect(client.emit).toHaveBeenCalledWith('join-room', expect.objectContaining({ _id: 'room1' }));
+    expect(client.emit).toHaveBeenCalledWith(
+      'join-room',
+      expect.objectContaining({ _id: 'room1' }),
+    );
   });
 
   it('❌ should throw exception if already joined', async () => {
     client.rooms.add('room1');
 
-    await expect(service.joinRoom(client, { _id: 'room1' })).rejects.toThrow(WsException);
+    await expect(service.joinRoom(client, { _id: 'room1' })).rejects.toThrow(
+      WsException,
+    );
   });
 
   it('✅ should exit a room', async () => {
@@ -121,6 +134,8 @@ describe('SocketService', () => {
   it('❌ should throw exception if exit room fails', async () => {
     chatRoomsService.exitRoom = jest.fn().mockResolvedValue(false);
 
-    await expect(service.exitRoom(client, { _id: 'room1' })).rejects.toThrow(WsException);
+    await expect(service.exitRoom(client, { _id: 'room1' })).rejects.toThrow(
+      WsException,
+    );
   });
 });

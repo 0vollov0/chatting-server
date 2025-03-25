@@ -26,36 +26,43 @@ describe('UserExistAuthGuard', () => {
     handshake: { auth: { accessToken: token } },
   });
 
-  const mockContext = (token?: string) => ({
-    switchToWs: () => ({
-      getClient: () => mockClient(token),
-    }),
-  } as unknown as WsArgumentsHost);
+  const mockContext = (token?: string) =>
+    ({
+      switchToWs: () => ({
+        getClient: () => mockClient(token),
+      }),
+    }) as unknown as WsArgumentsHost;
 
   describe('canActivate()', () => {
     it('✅ Should return true if token is valid and user exists', async () => {
       const payload: TUserPayload = {
         _id: '6603f9bcb2d5a5f8c8a6f2e3',
         createdAt: new Date(),
-        updatedAt: new Date() 
-      }
+        updatedAt: new Date(),
+      };
       jest.spyOn(jwt, 'verify').mockReturnValue(payload as never);
       jest.spyOn(usersService, 'findById').mockResolvedValue({
         _id: '6603f9bcb2d5a5f8c8a6f2e3',
         name: '',
         password: '',
         createdAt: new Date(),
-        updatedAt: new Date() 
+        updatedAt: new Date(),
       });
 
       const result = await guard.canActivate(mockContext('validToken'));
       expect(result).toBe(true);
-      expect(usersService.findById).toHaveBeenCalledWith('6603f9bcb2d5a5f8c8a6f2e3');
+      expect(usersService.findById).toHaveBeenCalledWith(
+        '6603f9bcb2d5a5f8c8a6f2e3',
+      );
     });
 
     it('❌ Should throw WsException if token is missing', async () => {
-      await expect(guard.canActivate(mockContext(undefined))).rejects.toThrow(WsException);
-      await expect(guard.canActivate(mockContext(undefined))).rejects.toThrow('Access token is missing');
+      await expect(guard.canActivate(mockContext(undefined))).rejects.toThrow(
+        WsException,
+      );
+      await expect(guard.canActivate(mockContext(undefined))).rejects.toThrow(
+        'Access token is missing',
+      );
     });
 
     it('❌ Should throw WsException if token is invalid', async () => {
@@ -63,8 +70,12 @@ describe('UserExistAuthGuard', () => {
         throw new UnauthorizedException('Invalid token');
       });
 
-      await expect(guard.canActivate(mockContext('invalidToken'))).rejects.toThrow(WsException);
-      await expect(guard.canActivate(mockContext('invalidToken'))).rejects.toThrow('Invalid token');
+      await expect(
+        guard.canActivate(mockContext('invalidToken')),
+      ).rejects.toThrow(WsException);
+      await expect(
+        guard.canActivate(mockContext('invalidToken')),
+      ).rejects.toThrow('Invalid token');
     });
 
     it('✅ Should return false if token is valid but user does not exist', async () => {

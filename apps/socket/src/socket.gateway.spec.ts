@@ -44,9 +44,18 @@ describe('SocketGateway', () => {
             exitRoom: jest.fn(),
           },
         },
-        { provide: ConfigService, useValue: { get: jest.fn().mockReturnValue('mockSecret') } },
-        { provide: UsersService, useValue: { findById: jest.fn().mockResolvedValue(mockUser) } },
-        { provide: ChatRoomsService, useValue: { findRoomsParticipated: jest.fn().mockResolvedValue([]) } },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue('mockSecret') },
+        },
+        {
+          provide: UsersService,
+          useValue: { findById: jest.fn().mockResolvedValue(mockUser) },
+        },
+        {
+          provide: ChatRoomsService,
+          useValue: { findRoomsParticipated: jest.fn().mockResolvedValue([]) },
+        },
       ],
     }).compile();
 
@@ -96,7 +105,9 @@ describe('SocketGateway', () => {
     });
 
     it('❌ Should disconnect a client if the user is not found', async () => {
-      jest.spyOn(jwt, 'verify').mockReturnValue({ _id: 'invalidUserId' } as any);
+      jest
+        .spyOn(jwt, 'verify')
+        .mockReturnValue({ _id: 'invalidUserId' } as any);
       jest.spyOn(usersService, 'findById').mockResolvedValue(null);
 
       await gateway.handleConnection(mockSocket);
@@ -128,7 +139,7 @@ describe('SocketGateway', () => {
       const chatDto: SendChatDto = {
         message: 'Hello World',
         roomId: '6603f9bcb2d5a5f8c8a6f2e3',
-        type: ChatType.message
+        type: ChatType.message,
       };
       gateway.handleChat(chatDto);
       expect(socketService.handleChat).toHaveBeenCalledWith(chatDto);
@@ -139,30 +150,39 @@ describe('SocketGateway', () => {
     it('✅ Should create a new chat room', () => {
       const createRoomDto: CreateRoomDto = {
         name: 'New Room',
-        participantIds: []
+        participantIds: [],
       };
       gateway.createRoom(createRoomDto, mockSocket);
-      expect(socketService.createRoom).toHaveBeenCalledWith(mockSocket, createRoomDto);
+      expect(socketService.createRoom).toHaveBeenCalledWith(
+        mockSocket,
+        createRoomDto,
+      );
     });
   });
 
   describe('joinRoom()', () => {
     it('✅ Should allow a user to join a room', () => {
       const joinRoomDto: JoinRoomDto = {
-        _id: '6603f9bcb2d5a5f8c8a6f2e3'
+        _id: '6603f9bcb2d5a5f8c8a6f2e3',
       };
       gateway.joinRoom(joinRoomDto, mockSocket);
-      expect(socketService.joinRoom).toHaveBeenCalledWith(mockSocket, joinRoomDto);
+      expect(socketService.joinRoom).toHaveBeenCalledWith(
+        mockSocket,
+        joinRoomDto,
+      );
     });
   });
 
   describe('exitRoom()', () => {
     it('✅ Should allow a user to exit a room', () => {
-      const exitRoomDto: ExitRoomDto = { 
-        _id: '6603f9bcb2d5a5f8c8a6f2e3'
+      const exitRoomDto: ExitRoomDto = {
+        _id: '6603f9bcb2d5a5f8c8a6f2e3',
       };
       gateway.exitRoom(exitRoomDto, mockSocket);
-      expect(socketService.exitRoom).toHaveBeenCalledWith(mockSocket, exitRoomDto);
+      expect(socketService.exitRoom).toHaveBeenCalledWith(
+        mockSocket,
+        exitRoomDto,
+      );
     });
   });
 });

@@ -57,7 +57,7 @@ describe('AuthController', () => {
     userModel = moduleRef.get<Model<User>>(getModelToken(User.name));
     tokenModel = moduleRef.get<Model<Token>>(getModelToken(Token.name));
   });
-  
+
   describe('join', () => {
     it('should return user model with out password', async () => {
       const dto: CreateUserDto = {

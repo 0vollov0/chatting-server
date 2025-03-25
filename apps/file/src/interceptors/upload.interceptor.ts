@@ -28,13 +28,23 @@ export class UploadInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<Request>();
     const body: Body = request.body;
     try {
-      if (!body || !body.originalname || !body.roomId || !body.buffer?.data || !body.bufferType) {
-        throw new BadRequestException('Missing required fields: originalname, roomId, buffer, or bufferType.');
+      if (
+        !body ||
+        !body.originalname ||
+        !body.roomId ||
+        !body.buffer?.data ||
+        !body.bufferType
+      ) {
+        throw new BadRequestException(
+          'Missing required fields: originalname, roomId, buffer, or bufferType.',
+        );
       }
 
       const fileExtension = path.extname(body.originalname);
       if (!fileExtension) {
-        throw new BadRequestException('Invalid file name: Missing file extension.');
+        throw new BadRequestException(
+          'Invalid file name: Missing file extension.',
+        );
       }
 
       let buffer: Buffer;
@@ -51,7 +61,6 @@ export class UploadInterceptor implements NestInterceptor {
         roomId: body.roomId,
         bufferType: body.bufferType,
       } as CreateFileDto;
-      
     } catch (error) {
       throw new BadRequestException(error.message);
     }

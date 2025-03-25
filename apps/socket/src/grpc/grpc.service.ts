@@ -1,12 +1,12 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
-import { join } from "path";
-import { ConfigService } from "@nestjs/config";
-import { UploadedChatFile } from "@common/schemas/chat.schema";
-import { SendChatWithFileDto } from "../dto/send-chat-with-file.dto";
-import { SendChatWithImageDto } from "../dto/send-chat-with-image.dto";
-import { BufferType } from "@common/type";
+import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
+import { UploadedChatFile } from '@common/schemas/chat.schema';
+import { SendChatWithFileDto } from '../dto/send-chat-with-file.dto';
+import { SendChatWithImageDto } from '../dto/send-chat-with-image.dto';
+import { BufferType } from '@common/type';
 import * as moment from 'moment';
 
 export type UploadFileDto = {
@@ -26,7 +26,7 @@ export type UploadFileResponse = {
 interface GrpcClient {
   UploadFile(
     dto: UploadFileDto,
-    callback: (error: any, response: UploadFileResponse) => void
+    callback: (error: any, response: UploadFileResponse) => void,
   ): void;
 }
 
@@ -40,9 +40,9 @@ export class GrpcService implements OnModuleInit {
   onModuleInit() {
     try {
       this.initializeGrpcClient();
-      this.logger.log("gRPC Client initialized successfully");
+      this.logger.log('gRPC Client initialized successfully');
     } catch (error) {
-      this.logger.error("Failed to initialize gRPC Client", error);
+      this.logger.error('Failed to initialize gRPC Client', error);
     }
   }
 
@@ -56,18 +56,22 @@ export class GrpcService implements OnModuleInit {
       oneofs: true,
     });
 
-    const fileUploaderProto: any = grpc.loadPackageDefinition(packageDefinition).fileUploader;
+    const fileUploaderProto: any =
+      grpc.loadPackageDefinition(packageDefinition).fileUploader;
 
     this.client = new fileUploaderProto.FileUploader(
       `${this.configService.get<string>('GRPC_HOST', 'localhost')}:${this.configService.get<string>('GRPC_PORT', '50051')}`,
-      grpc.credentials.createInsecure()
+      grpc.credentials.createInsecure(),
     );
   }
 
-  async upload(bufferType: BufferType, dto: SendChatWithImageDto | SendChatWithFileDto): Promise<UploadedChatFile> {
+  async upload(
+    bufferType: BufferType,
+    dto: SendChatWithImageDto | SendChatWithFileDto,
+  ): Promise<UploadedChatFile> {
     return new Promise<UploadedChatFile>((resolve, reject) => {
       if (!this.client) {
-        return reject(new Error("gRPC Client is not initialized"));
+        return reject(new Error('gRPC Client is not initialized'));
       }
 
       this.client.UploadFile(
@@ -79,17 +83,17 @@ export class GrpcService implements OnModuleInit {
         },
         (error, response) => {
           if (error) {
-            this.logger.error("gRPC UploadFile Error:", error);
-            return reject(new Error(error.message || "gRPC UploadFile failed"));
+            this.logger.error('gRPC UploadFile Error:', error);
+            return reject(new Error(error.message || 'gRPC UploadFile failed'));
           }
-          
+
           resolve({
             filename: response.filename,
             originalname: response.originalname,
             size: response.size,
             expireAt: moment(response.expireAt).toDate(),
           });
-        }
+        },
       );
     });
   }

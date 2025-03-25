@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DatabasesService } from '@common/databases/databases.service';
 import { ChatRoom } from '@common/schemas/chat-room.schema';
@@ -20,7 +24,10 @@ export class ChatRoomsService {
     @InjectModel(ChatRoom.name) private chatRoomModel: Model<ChatRoom>,
   ) {}
 
-  async find({ limit, page }: FindChatRoomDto): Promise<PaginationMock<ChatRoom>> {
+  async find({
+    limit,
+    page,
+  }: FindChatRoomDto): Promise<PaginationMock<ChatRoom>> {
     try {
       const values = await this.chatRoomModel.aggregate([
         { $project: { chats: 0 } },
@@ -44,11 +51,14 @@ export class ChatRoomsService {
       ]);
 
       const cacheChats = await this.redisService.getChats(roomId);
-      const filteredCacheChats = cacheChats
-        .filter((chat) => chat.createdAt > lastCheckTime);
+      const filteredCacheChats = cacheChats.filter(
+        (chat) => chat.createdAt > lastCheckTime,
+      );
       return [...dbChats, ...filteredCacheChats];
     } catch (error) {
-      this.logger.error(`Failed to fetch chats for room ${roomId}: ${error.message}`);
+      this.logger.error(
+        `Failed to fetch chats for room ${roomId}: ${error.message}`,
+      );
       throw new InternalServerErrorException('Failed to fetch chats for room.');
     }
   }

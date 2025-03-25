@@ -1,4 +1,9 @@
-import { CanActivate, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  CanActivate,
+  Injectable,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { TUserPayload } from 'apps/api/src/users/decorators/user.decorator';
@@ -33,10 +38,8 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private validateToken(token: string): void {
-    jwt.verify(
-      token,
-      this.configService.get<string>('JWT_SECRET'),
-      { ignoreExpiration: false },
-    ) as TUserPayload;
+    jwt.verify(token, this.configService.get<string>('JWT_SECRET'), {
+      ignoreExpiration: false,
+    }) as TUserPayload;
   }
 }
